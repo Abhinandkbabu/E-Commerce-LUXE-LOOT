@@ -191,7 +191,7 @@ module.exports={
             }]
         }
         let product= await Products.findOne({_id:id}).populate('brand')
-        res.render('user/productdetails',{title:product.productName,product,Address})
+        res.render('user/ProductDetails',{title:product.productName,product,Address})
        }catch(err){
         console.log("getproductview: "+err)
        }
