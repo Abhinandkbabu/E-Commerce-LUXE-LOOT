@@ -16,4 +16,4 @@ const storage = multer.diskStorage({
 // Dynamically handle file uploads for any number of images
 const upload = multer({ storage });
 
-module.exports = upload;
+module.exports = upload; 
