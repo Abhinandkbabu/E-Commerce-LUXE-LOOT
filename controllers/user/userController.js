@@ -21,7 +21,7 @@ module.exports = {
         Banner.find({status:'Active', bannerType:'main'})
       ])
       
-      res.render("user/userpage",{title:'HOME',data:data, mensProduct:mensProduct,mainbanner});
+      res.render("user/userPage",{title:'HOME',data:data, mensProduct:mensProduct,mainbanner});
     } catch (error) {
       console.log(error);
     }
