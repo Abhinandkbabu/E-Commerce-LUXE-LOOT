@@ -1,0 +1,113 @@
+<%- include('../layouts/adminHeader'); %>
+    <main>
+        <div class="container">
+            <a href="/admin/addProduct"><button type="button" class="btn btn-primary btn-sm mb-2" >Add Product</button></a>
+                    <div class="table-responsive bg-white p-2" id="myDiv">
+                        <table class="table table-hover table-stripped-colum text-center shadow" >
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Brand</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Last Update</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% let i=1 %>
+                               <% for(data of data){ %>
+                                <tr>
+                                    <td><%= i++ %></td>
+                                    <td> <div style="width: 100px;height: 100px;margin-right: 10px;"><img class="card-img-top"
+                                        style="height: 90px;width: 90px;" src="/uploads/<%= data.images[0] %>"
+                                        alt="Card image cap"></div>
+                                    </td>
+                                    <td><%= data.productName %></td>
+                                    <td><%= data?.category?.Name %></td>
+                                    <td><%= data?.brand?.Name %></td>
+                                    <td> 
+                                        <span>Price: <%=data.price%></span><br><br>
+                                        <span>Offer Price: <%= data.discountPrice %></span>
+                                    </td>
+                                    <td><%= data.stock %></td>
+                                    <% const date = new Date(data.updatedAt);
+                                    const year = date.getFullYear();
+                                    const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is zero-based, so we add 1
+                                    const day = String(date.getDate()).padStart(2, "0");
+                                    const formattedDate = `${day}-${month}-${year}`;
+                                      %>
+                                    <td><%= formattedDate %></td>
+                                    <td>
+                                      <% if(data.status=='Active'){ %>
+                                        <span class="badge text-bg-success">Active</span>
+                                        <% } else { %>
+                                            <span class="badge text-bg-danger">Blocked</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/editProduct/<%- data._id -%>"><button class="btn btn-success btn-sm"><i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button></a>
+                                        <% if(data.status=='Active'){ %>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="changeStatus('blockProduct','<%= data._id %>')"><i class="fa-solid fa-eye-slash" style="color: #ffffff;"></i></button>
+                                        <% } else { %>
+                                            <button type="button" class="btn btn-success btn-sm" onclick="changeStatus('unblockProduct','<%= data._id %>')"><i class="fa-solid fa-eye" style="color: #ffffff;"></i></button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+        </div>
+    </main>
+  
+
+
+
+
+
+
+<script>
+  function reloadDiv() {
+    $("#myDiv").load(location.href + " #myDiv",function(){
+        // Reinitialize DataTable after content reload
+    $('.table').DataTable().destroy(); // Destroy existing DataTable
+    $('.table').DataTable(); // Reinitialize DataTable
+    });
+    
+  }
+
+  function changeStatus( action,productid){
+    $.ajax({
+                url: `/admin/${action}/${productid}`,
+                type: "GET",
+                success: function (response) {
+                    // Handle success response
+                    Toastify({
+                    text: response.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "bottom",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+                  reloadDiv()
+                    // location.reload(); // Reload the page after successful blocking/unblocking
+                },
+                error: function (xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
+  }
+</script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+<%- include('../layouts/adminFooter'); %>

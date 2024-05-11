@@ -1,0 +1,199 @@
+<%- include('../layouts/adminHeader'); %>
+    <main>
+      <div class="container" id="reload">
+                  <div class="bg-white p-2" id="table-orders">
+                      <table class="table table-hover table-stripped-colum text-center shadow" id="reloadtable">
+                          <thead>
+                              <tr class="table-dark">
+                                  <th>No</th>
+                                  <th>Product</th>
+                                  <th>Price</th>
+                                  <th>Quantity</th>
+                                  <th>Total Price</th>
+                                  <th>Payment Method</th>
+                                  <th>Return Reason</th>
+                                  <th>Order Status</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <% let i=0 %>
+                              <% order.forEach((product) => { %>
+                                  <tr>
+                                      <td><%= i+1 %></td>
+                                      <td><%= product.productt.productName %></td>
+                                      <td><%= product.price %></td>
+                                      <td><%= product.quantity %></td>
+                                      <td><%= product.price*product.quantity %></td>
+                                      <td><%= order.paymentMethod %></td>
+                                      <td>
+                                        <% if(product.returnReason){ %>
+                                            <button class="btn btn-sm btn-success" onclick="showreason('<%= product.returnReason%>','<%= product.ProductId._id %>')">
+                                                <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
+                                            </button>
+                                        <% } else{%>
+                                            <button class="btn btn-sm" disabled="true"><i class="fa-solid fa-eye" style="color: #000000;"></i></button>
+                                        <%}%>
+                                      </td>
+                                      <td class="order-status p-3">
+                                        
+                                            <%= product.OrderStatus %>
+                                       
+                                    </td>
+                                  </tr>
+                                  <% i++ %>
+                              <% })  %>
+                          </tbody>
+                      </table>
+                  </div>
+      </div>
+  </main>
+
+  <!-- Return Reason Modal -->
+  <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="reasonModalLabel">Return Request</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <input type="text" name="productid" id="reasonProductid" style="display: none;">
+            <input type="text" name="orderid" id="orderid" style="display: none;" value="<%= order._id %>">
+            <span>Reason: </span><span id="returnReason"></span>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-success" onclick="approveReturn()">Approve</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="openReject()">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Reject Reason Modal -->
+<div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-labelledby="rejectReasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="rejectReasonModalLabel">Reject Return</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <input type="text" name="productid" id="reasonProductid" style="display: none;">
+            <input type="text" name="orderid" id="orderid" style="display: none;" value="<%= order._id %>">
+            <input type="text" name="rejectReason" id="rejectReason" style="border-radius: 5px; border: none;width: 100%;" placeholder="Enter Reason">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" onclick="rejectReturn()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showreason(reason,productid){
+        const reasonElement=document.getElementById('returnReason')
+        const productidElemnt=document.getElementById('reasonProductid')
+        productidElemnt.value=productid
+        reasonElement.innerText=reason
+        $('#reasonModal').modal('show')
+    }
+
+    function approveReturn(){
+        const productidElemnt=document.getElementById('reasonProductid')
+        const orderidElement=document.getElementById('orderid')
+        const orderid=orderidElement.value
+        const productid=productidElemnt.value
+        $.ajax({
+          url: `/admin/approveReturn`,
+          method: 'POST',
+          data :{
+            orderid:orderid,
+            productid:productid
+          },
+          success: function (res) {
+            Toastify({
+                text: "Return Approved",
+                duration: 800,
+                close: false,
+                gravity: "top",
+                position: 'center',
+                style: {
+                  background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                  color: "#fff",
+                  borderRadius: "15px",
+                }
+              }).showToast();
+              $('#reasonModal').modal('hide')
+              setTimeout(()=>{
+                window.location.reload()
+              },800)
+          },
+          error: function (err) {
+              // Handle error if needed
+          }
+      });
+    }
+    
+    function openReject(){
+        $('#reasonModal').modal('hide')
+        $('#rejectReasonModal').modal('show')
+    }
+
+    function rejectReturn(){
+        const productidElemnt=document.getElementById('reasonProductid')
+        const orderidElement=document.getElementById('orderid')
+        const rejectReason = document.getElementById('rejectReason').value
+        const orderid=orderidElement.value
+        const productid=productidElemnt.value
+        $.ajax({
+          url: `/admin/rejectReturn`,
+          method: 'POST',
+          data :{
+            orderid:orderid,
+            productid:productid,
+            rejectReason:rejectReason
+          },
+          success: function (res) {
+            Toastify({
+                text: "Return rejected",
+                duration: 800,
+                close: false,
+                gravity: "top",
+                position: 'center',
+                style: {
+                  background: "rgba(255, 0, 0, 0.7)", // Set the background color with opacity
+                  color: "#fff",
+                  borderRadius: "15px",
+                }
+              }).showToast();
+              $('#rejectReasonModal').modal('hide')
+              setTimeout(()=>{
+                window.location.reload()
+              },800)
+          },
+          error: function (err) {
+              // Handle error if needed
+          }
+      });
+        
+    }
+        // Function to get order status badge class
+        function getOrderStatusBadgeClass(orderStatus) {
+            switch (orderStatus) {
+                case 'Order Processing':
+                    return 'text-bg-info';
+                case 'Order Confirmed':
+                    return 'text-bg-primary';
+                case 'Order Shipped':
+                    return 'text-bg-warning';
+                case 'Order Delivered':
+                    return 'text-bg-success';
+                case 'Cancelled':
+                    return 'text-bg-danger';
+                default:
+                    return 'text-bg-secondary';
+            }
+        }
+    </script>
+</script>
+  <%- include('../layouts/adminFooter'); %>

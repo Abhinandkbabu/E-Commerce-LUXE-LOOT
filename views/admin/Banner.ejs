@@ -1,0 +1,189 @@
+<%- include('../layouts/adminHeader'); %>  
+
+<main>
+    <div>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Add Banner
+          </button>
+          <hr>
+          <% if(banner.length!=0){ %>
+            <div class="row mt-4">
+              <% banner.forEach(banner=>{ %> 
+                <div class="card ms-2" style="width: 18rem;">
+                  <img src="/uploads/<%= banner.image %>" class="card-img-top p-2 mt-3" alt="...">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-center">
+                      <span class="text-success">Baner Type : </span><span><%= banner.bannerType %></span>
+                    </div>
+                    <div class="d-flex justify-content-center mt-2">
+                      <% if(banner.status=='Active'){ %><button class="btn btn-sm btn-primary" onclick="changeBannerStatus('<%- banner._id %>','Blocked')"> <i class="fa-solid fa-eye-slash" style="color: #ffffff;"></i> </button>
+                      <%}else{ %> <button class="btn btn-sm btn-primary" onclick="changeBannerStatus('<%- banner._id %>','Active')"> <i class="fa-solid fa-eye" style="color: #ffffff;"></i> </button> <% } %>
+                      <button class="btn btn-sm btn-danger ms-2" onclick="deleteBanner('<%- banner._id %>')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% }else{ %> <p>No Banner Available</p> <% } %>
+    </div>
+      
+      <!-- Modal -->
+      <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Banner</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="addbanner">
+                <div>
+                </div>
+                <div style="width: 100%; height: 100%; margin-right: 10px; display: flex; justify-content: center; align-items: center;">
+                    <!-- Hide the input field -->
+                    <input type="file" id="imageInput" name="Banner" style="display: none;" required>
+                    <!-- Show the image field -->
+                    <label for="imageInput" style="cursor: pointer;">
+                        <img id="previewImage" src="/images/defaultbannerimg.png" alt="" style="max-width: 760px; max-height: 100%;">
+                    </label>
+                </div>
+                <div style="display: flex; justify-content: center; width: 100%;" class="mt-2">
+                    <!-- Style the select field -->
+                    <select name="bannerType" id="bannerType" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;" >
+                        <option value="main">Main Banner</option>
+                        <option value="category">Category Banner</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+</main>
+
+<script>
+    // Get references to the file input and image elements
+    const imageInput = document.getElementById('imageInput');
+    const previewImage = document.getElementById('previewImage');
+
+    // Add event listener for change event on file input
+    imageInput.addEventListener('change', function(event) {
+        // Check if any file is selected
+        if (imageInput.files && imageInput.files[0]) {
+            // Create a FileReader object
+            const reader = new FileReader();
+
+            // Set up listener to load image file when it's read
+            reader.onload = function(e) {
+                // Update the src attribute of the image tag with the data URL of the selected image
+                previewImage.src = e.target.result;
+            }
+
+            // Read the selected image file as data URL
+            reader.readAsDataURL(imageInput.files[0]);
+        }
+    });
+
+
+    $(document).ready(function(){
+    $('#addbanner').submit(function(e){
+        e.preventDefault(); // Prevent the default form submission
+        var formData = new FormData(this); // Create FormData object to send the form data
+        $.ajax({
+            url: '/admin/Banner', // Replace 'your_backend_script.php' with the URL of your backend script
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response){
+              Swal.fire({
+                  title: response.msg,
+                  icon: "success"
+                }).then(()=>{
+                  location.reload()
+                })
+            },
+            error: function(xhr, status, error){
+                // Handle error
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+   
+function deleteBanner(bannerid){
+
+  Swal.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Yes, delete it!"
+}).then((result) => {
+  if (result.isConfirmed) {
+    $.ajax({
+    url:'/admin/deletebanner',
+    method:'POST',
+    data:{bannerid},
+    success:function(response){
+      Swal.fire({
+        title: response.msg,
+         icon: "success"
+        }).then(()=>{
+          location.reload()
+        })
+    }
+  })
+
+
+  }
+});
+
+  
+}
+
+function changeBannerStatus(bannerid,status){
+  let message
+  if(status=='Active') message ='Activate'
+  else message ='Block'
+  Swal.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: `Yes ${message}`
+}).then((result) => {
+  if (result.isConfirmed) {
+
+    $.ajax({
+    url:'/admin/changeBannerStatus',
+    method:'POST',
+    data:{bannerid,status},
+    success:function(response){
+      Swal.fire({
+          title: response.msg,
+          icon: "success"
+        }).then(()=>{
+          location.reload()
+        })
+    }
+  })
+
+
+  }
+});
+
+ 
+}
+</script>
+<%- include('../layouts/adminFooter'); %>

@@ -1,0 +1,200 @@
+body{
+    background:#eee;
+}
+.card {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+}
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: 1rem;
+}
+.text-reset {
+    --bs-text-opacity: 1;
+    color: inherit!important;
+}
+a {
+    color: #5465ff;
+    text-decoration: none;
+}
+
+
+
+
+.modal-content{
+    background-color: #ffffff;
+    border-color: #efeff1;
+    border-radius: 1rem;
+}
+@media (min-width: 576px){
+.modal-dialog {
+    max-width: 750px;
+    margin: 1.75rem auto;
+}
+}
+.show{
+    padding: 0;
+}
+.modal-header{
+    border-bottom: none;
+    text-align: center;
+}
+.modal-header .close {
+    padding: 1rem 1rem;
+    margin: -1rem -1rem -1rem 0;
+    color: #000000;
+}
+:-moz-any-link:focus {
+    outline: none;
+}
+.modal-title{
+    line-height: 3rem;
+}
+.modal-body{
+    padding: 1rem;
+}
+#progressbar {
+    margin-bottom: 3vh;
+    overflow: hidden;
+    color: rgb(17, 17, 17);
+    padding-left: 0px;
+    margin-top: 3vh
+}
+
+#progressbar .bar {
+    list-style-type: none;
+    font-size: 0.8rem;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+    color: rgb(0, 0, 0);
+}
+
+#progressbar #step1:before {
+    content: "";
+    color: rgb(0, 0, 0);
+    width: 20px;
+    height: 20px;
+    margin-left: 0px !important;
+}
+
+#progressbar #step2:before {
+    content: "";
+    color: #000000;
+    width: 20px;
+    height: 20px;
+    margin-left: 32%;
+}
+
+#progressbar #step3:before {
+    content: "";
+    color: #1478ea;
+    width: 20px;
+    height: 20px;
+    margin-right: 32% ; 
+}
+
+#progressbar #step4:before {
+    content: "";
+    color: rgba(11, 195, 51, 0.651);
+    width: 20px;
+    height: 20px;
+    margin-right: 0px !important;
+}
+
+#progressbar .bar:before {
+    line-height: 29px;
+    display: block;
+    font-size: 12px;
+    background: rgb(149, 151, 151);
+    border-radius: 50%;
+    margin: auto;
+    z-index: -1;
+    margin-bottom: 1vh;
+}
+
+#progressbar .bar:after {
+    content: '';
+    height: 3px;
+    background: rgb(151, 149, 149, 0.651);
+    position: absolute;
+    left: 0%;
+    right: 0%;
+    margin-bottom: 2vh;
+    top: 8px;
+    z-index: 1;
+}
+.progress-track{
+    padding: 0 8%;
+}
+#progressbar .bar:nth-child(2):after {
+    margin-right: auto;
+}
+
+#progressbar .bar:nth-child(1):after {
+    margin: auto;
+}
+
+#progressbar .bar:nth-child(3):after {
+    float: left;
+    width: 68%;
+}
+#progressbar .bar:nth-child(4):after {
+    margin-left: auto;
+    width: 132%;
+}
+
+#progressbar .bar.active:before,
+#progressbar .bar.active:after {
+    background: rgb(3, 130, 1);
+}
+
+#three{
+    font-size: 1.2rem;
+}
+@media (max-width: 767px){
+    #three{
+        font-size: 1rem;
+    } 
+}
+.details{
+    padding: 2rem;
+    font-size: 1.4rem;
+    line-height: 3.5rem;
+}
+
+@media (max-width: 767px){
+.details {
+    padding: 2rem 0;
+    font-size: 1rem;
+    line-height: 2.5rem;
+}
+}
+.d-table{
+    width: 100%;
+}
+.d-table-row{
+    width: 100%;
+}
+.d-table-cell{
+    padding-left: 3rem;
+}
+@media (max-width: 767px){
+    .d-table-cell{
+        padding-left: 1rem;
+    } 
+}
+.col-3{
+    display: grid;
+    text-align: end;
+}
+.col-3 .d-table-row{
+    align-self: flex-end;
+}

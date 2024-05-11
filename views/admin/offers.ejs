@@ -1,0 +1,563 @@
+<%- include('../layouts/adminHeader'); %> 
+<style>
+    h1 {
+    text-transform: uppercase;
+    font-weight: 900;
+    border-left: 10px solid #fec500;
+    padding-left: 10px;
+    margin-bottom: 30px
+}
+    .p-xl {
+  padding: 40px;
+}
+
+.lazur-bg {
+  background-color: #23c6c8;
+  color: #ffffff;
+}
+
+.red-bg {
+  background-color: #ed5565;
+  color: #ffffff;
+}
+
+.navy-bg {
+  background-color: #1ab394;
+  color: #ffffff;
+}
+
+.yellow-bg {
+  background-color: #f8ac59;
+  color: #ffffff;
+}
+
+.widget {
+  border-radius: 5px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16), 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.widget h2, .widget h3 {
+  margin-top: 5px;
+  margin-bottom: 0;
+  border-bottom:1px dotted white;
+}
+
+.m-t-md {
+  margin-top: 20px;
+}
+</style>
+<main>
+    <div class="container bootstrap snippets bootdey">
+      <div class="">
+        <h6>Referal Offers</h6>
+        <% if(referal.length>0){%>
+          <button type="button" class="btn btn-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#referaloffermodal" data-bs-whatever="@mdo" disabled>Add Offer</button>
+        <%}else{%>
+          <button type="button" class="btn btn-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#referaloffermodal" data-bs-whatever="@mdo">Add Offer</button>
+          <%}%>
+        
+        <div class="row">
+            <% if(referal.length<=0){%>
+              <h6>NO OFFERS FOUND</h6>
+              <%}else{%>
+                <% referal.forEach(offer=>{ %>
+
+                  <div class="col-md-4">
+                      <div class="widget navy-bg p-xl">
+                          <h2>Referal Offer</h2>
+                          <ul class="list-unstyled m-t-md">
+                              <li>
+                                  <i class="fa-solid fa-percent" style="color: #ffffff;"></i>
+                                  <label>Offer Amount:</label>
+                                  <%= offer.OfferAmount %>
+                              </li>
+                              <li>
+                                  <i class="fa-regular fa-calendar-days" style="color: #ffffff;"></i>
+                                  <label>Expiry Date:</label>
+                                  <%= offer.ExpairyDate %>                                
+                              </li>
+                              <li class="mt-2">
+                                  <a href="#" class="btn btn-sm bg-primary me-2" onclick="openEditReferalofferModal('<%- offer._id %>')">
+                                      <i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i>
+                                    </a>                                            
+                                    <a href="#" class="btn btn-sm bg-danger" onclick="deleteRferaloffer('<%- offer._id %>')" >
+                                      <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                    </a>
+                              </li>
+                          </ul>
+                      </div>   
+                  </div>
+              </div>
+              <% }) %>
+              <%}%>
+          
+      
+  </div>
+      </div>
+      <hr>
+      <h6>Category Offers</h6>
+        <div>
+          <button type="button" class="btn btn-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Add Offer</button>
+        </div>
+        <div class="row">
+            
+            <% offers.forEach(offer=>{ %>
+
+                <div class="col-md-4">
+                    <div class="widget navy-bg p-xl">
+                        <h2><%= offer.category_id.Name %></h2>
+                        <ul class="list-unstyled m-t-md">
+                            <li>
+                                <i class="fa-solid fa-percent" style="color: #ffffff;"></i>
+                                <label>Offer:</label>
+                                <%= offer.offerPercentage %>%
+                            </li>
+                            <li>
+                                <i class="fa-regular fa-calendar-days" style="color: #ffffff;"></i>
+                                <label>Expiry Date:</label>
+                                <%= offer.expiryDate.toLocaleString('en-US', {
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                    month: 'long' // 'long' will give you the full month name in alphabetic format
+                                  }); %>                                
+                            </li>
+                            <li class="mt-2">
+                                <a href="#" class="btn btn-sm bg-primary me-2" onclick="openEditofferModal('<%- offer._id %>')">
+                                    <i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i>
+                                  </a>                                            
+                                  <a href="#" class="btn btn-sm bg-danger" onclick="deleteoffer('<%- offer._id %>')" >
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                  </a>
+                            </li>
+                        </ul>
+                    </div>   
+                </div>
+            </div>
+            <% }) %>
+        
+    </div>
+
+    <!-- -------------------------------------add referal offer modal----------------------------------- -->
+    <div class="modal fade" id="referaloffermodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Referal Offer</h1>
+            <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+          </div>
+          <div class="modal-body">
+            <form id="ReferalofferForm">
+              <div class="mb-3">
+                <input type="text"  class="form-control" name="referalAmount" id="offerPercentage"placeholder="Offer Percentage" oninput="validateReferalAmount(this.value)" >
+              </div>
+              <div class="mb-3">
+                <input type="date" class="form-control" name="expiryDate" id="expiryDate" oninput="validatedate(this.value)" >
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" id="referalFormbtn" class="btn btn-primary" disabled >Submit</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------------------------------edit referal offer modal----------------------------------------- -->
+
+    <div class="modal fade" id="editreferaloffermodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Referal Offer</h1>
+            <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+          </div>
+          <div class="modal-body">
+            <form id="editreferalofferform">
+              <div class="mb-3">
+                <input type="text"  class="form-control" name="referalAmount" id="editofferPercentage"placeholder="Offer Percentage" oninput="editvalidateReferalAmount(this.value)" >
+              </div>
+              <div class="mb-3">
+                <input type="date" class="form-control" name="expiryDate" id="editReferalexpiryDate" oninput="editvalidatedate(this.value)" >
+                <input type="text" style="display: none;" id="referalofferid" name="offerid">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" id="editreferalFormbtn" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- ------------------------------add offer modal------------------------------------ -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Offer</h1>
+              <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            </div>
+            <div class="modal-body">
+              <form id="offerForm">
+                <div class="mb-3">
+                  <label> Select Category</label>
+                  <select class="form-select" id="categorySelect" name="category_id" required >
+                    <% categories.forEach(data => { %>
+
+                     <option value="<%= data._id %>"><%= data.Name %></option>
+
+                    <% }) %>
+                 
+                     </select>
+                </div>
+                <div class="mb-3">
+                  <input type="text"  class="form-control" name="offerPercentage" id="offerPercentage"placeholder="Offer Percentage" oninput="validateOfferPercentage(this.value)" >
+                </div>
+                <div class="mb-3">
+                  <input type="date" class="form-control" name="expiryDate" id="expiryDate"  >
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" id="addCouponBtn" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ------------------------------------edit offer Modal----------------------------------------------------- -->
+      <div class="modal fade" id="exampleModa2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Offer</h1>
+              <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            </div>
+            <div class="modal-body">
+              <form id="editofferForm">
+                <div class="mb-3">
+                  <label> Select Category</label>
+                  <select class="form-select" id="editcategorySelect" name="category_id" required >
+                    <% categories.forEach(data => { %>
+
+                     <option value="<%= data._id %>"><%= data.Name %></option>
+
+                    <% }) %>
+                 
+                     </select>
+                </div>
+                <div class="mb-3">
+                  <input type="text"  class="form-control" name="offerPercentage" id="editofferPercentage"placeholder="Offer Percentage" oninput="editvalidateOfferPercentage(this.value)" >
+                </div>
+                <div class="mb-3">
+                  <input type="date" class="form-control" name="expiryDate" id="editexpiryDate"  >
+                </div>
+                <input type="text" name="offerid" id="editofferid" style="display: none;">
+                <input type="text" name="oldCategory" id="oldcategory" style="display: none;">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" id="editCouponBtn" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+          </div>
+        </div>
+      </div>
+</main>
+
+<script>
+
+function deleteRferaloffer(offerid){
+  $.ajax({
+    url:'/admin/deleteReferalOffer',
+    method:'POST',
+    data:{
+      offerid
+    },
+    success:function(response){
+      Swal.fire({
+            icon: response.icon,
+            title: response.msg,
+          }).then(() => {
+          // Reload the page
+          location.reload();
+      });
+    }
+  })
+}
+
+function openEditReferalofferModal(id){
+  $.ajax({
+    url:`/admin/editReferaloffer/${id}`,
+    method:'GET',
+    success: function(response){
+      $('#editofferPercentage').val(response.referal.OfferAmount);
+      $('#editReferalexpiryDate').val(response.referal.ExpairyDate);
+      $('#referalofferid').val(response.referal._id);
+      $('#editreferaloffermodal').modal('show');
+
+    }
+  })
+}
+
+$(document).ready(function() {
+    $('#editreferalofferform').submit(function(e) {
+        e.preventDefault(); // Prevent the default form submission
+        
+        // Serialize form data
+        var formData = $(this).serialize();
+        
+        // Perform AJAX POST request
+        $.ajax({
+            type: "POST",
+            url: `/admin/editReferaloffer/${1}`,
+            data: formData,
+            success: function(response) {
+                // Handle successful submission
+                Swal.fire({
+            icon: response.icon,
+            title: response.msg,
+          }).then(() => {
+          // Reload the page
+          location.reload();
+      });
+                
+                // Close the modal
+                $('#editreferaloffermodal').modal('hide');
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error("Error:", error);
+            }
+        });
+    });
+});
+
+
+  function validateReferalAmount(input){
+                const value = input
+                if(value!=""&&isNumeric(value)){
+                    $('#referalFormbtn').prop('disabled', false);
+                }else{
+                    $('#referalFormbtn').prop('disabled', true);
+                }
+            }
+
+  function validatedate(date){
+    if(date=='') $('#referalFormbtn').prop('disabled', true);
+    else $('#referalFormbtn').prop('disabled', false);
+  }
+
+  function editvalidateReferalAmount(input){
+    if(input=='')  $('#editreferalFormbtn').prop('disabled', true);
+    else  $('#editreferalFormbtn').prop('disabled', false);
+  }
+
+  function editvalidatedate(input){
+    if(input=='')  $('#editreferalFormbtn').prop('disabled', true);
+    else  $('#editreferalFormbtn').prop('disabled', false);
+  }
+
+  $(document).ready(function() {
+$('#ReferalofferForm').submit(function(e) {
+    e.preventDefault(); // Prevent the default form submission
+    
+    // Serialize form data
+    var formData = $(this).serialize();
+    
+    // Perform AJAX POST request
+    $.ajax({
+        type: "POST",
+        url: "/admin/addreferaloffer",
+        data: formData,
+        success: function(response) {
+            // Handle successful submission
+            $('#exampleModal').modal('hide');
+            Swal.fire({
+            icon: response.icon,
+            title: response.msg,
+          }).then(() => {
+          // Reload the page
+          location.reload();
+      });
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error("Error:", error);
+        }
+    });
+});
+});
+
+</script>
+
+<script>
+const isNumeric = str => /^[0-9]+$/.test(str);
+function validateOfferPercentage(minamount){
+  const minamountElement = document.getElementById('offerPercentage')
+  if(!isNumeric(minamount)||minamount==''|| minamount.includes(' ')){
+    minamountElement.classList.add('is-invalid')
+        $('#addCouponBtn').prop("disabled", true)
+        return false
+  }else{
+    minamountElement.classList.remove('is-invalid')
+      $('#addCouponBtn').prop("disabled", false)
+      return true
+  }
+}
+function editvalidateOfferPercentage(minamount){
+  const minamountElement = document.getElementById('editofferPercentage')
+  if(!isNumeric(minamount)||minamount==''|| minamount.includes(' ')){
+    minamountElement.classList.add('is-invalid')
+        $('#editCouponBtn').prop("disabled", true)
+        return false
+  }else{
+    minamountElement.classList.remove('is-invalid')
+      $('#editCouponBtn').prop("disabled", false)
+      return true
+  }
+}
+
+
+    $(document).ready(function() {
+    // Event listener for form submission
+    $('#offerForm').submit(function(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Serialize form data
+        var formData = $(this).serialize();
+
+        // Send AJAX request
+        $.ajax({
+            url: '/admin/offers', // Update the URL to match your backend endpoint
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                if(response.success){
+                    $('#exampleModal').modal('hide');
+          Swal.fire({
+              title: response.msg,
+              icon: "success"
+          }).then(() => {
+              // Reload the page
+              location.reload();
+          });
+                }else{
+                    Toastify({
+          text: response.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+            background: "rgba(205, 212, 8)", // Set the background color with opacity
+            color: "rgba(138, 1, 1)",
+            borderRadius: "15px",
+          }
+        }).showToast();
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error('Error adding offer:', error);
+                // Optionally, you can display an error message to the user
+                // For example, show an alert or update the UI with an error message
+                // alert('Failed to add offer. Please try again.');
+            }
+        });
+    });
+
+    $('#editofferForm').submit(function(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Serialize form data
+        var formData = $(this).serialize();
+
+        $.ajax({
+            url:'/admin/editoffer/1',
+            method: 'POST',
+            data: formData,
+            success : function(response){
+                $('#exampleModa2').modal('hide');
+        Swal.fire({
+              title: response.msg,
+              icon: "success"
+          }).then(() => {
+              // Reload the page
+              location.reload();
+          });
+            },
+            error : function(err){
+                console.log(err)
+            }
+        })
+    })
+
+
+});
+
+function openEditofferModal(offerid) {
+  $.ajax({
+    url: '/admin/editoffer/' + offerid, // Endpoint to fetch coupon details by ID
+    method: 'GET',
+    success: function(offer) {
+      // Populate the modal with coupon details
+      var categoryName = offer.category_id.Name;
+      var selectElement = document.getElementById('editcategorySelect');
+      var options = selectElement.options;
+    for (var i = 0; i < options.length; i++) {
+        if (options[i].text === categoryName) {
+            // Set the selected attribute to true for the matching option
+            options[i].selected = true;
+            break; // Exit the loop once a match is found
+        }
+    }
+      document.getElementById('editofferPercentage').value = offer.offerPercentage;
+      document.getElementById('editofferid').value = offer._id
+      const formattedDate = new Date(offer.expiryDate).toISOString().split('T')[0];
+      console.log('Formatted Date:', formattedDate);
+      document.getElementById('editexpiryDate').value = formattedDate;
+      document.getElementById('oldcategory').value = offer.category_id._id
+      // Open the modal
+      var myModal = new bootstrap.Modal(document.getElementById('exampleModa2'));
+      myModal.show();
+    },
+    error: function(err) {
+      console.error('Error fetching coupon details:', err);
+    }
+  });
+}
+
+function deleteoffer(offerid){
+    $.ajax({
+        url:'/admin/deleteoffer',
+        method:'post',
+        data: {
+            offerid:offerid
+        },
+        success: function(response){
+            Swal.fire({
+              title: response.msg,
+              icon: "success"
+          }).then(() => {
+              // Reload the page
+              location.reload();
+          });
+        }
+
+    })
+}
+
+</script>
+
+<%- include('../layouts/adminFooter'); %>

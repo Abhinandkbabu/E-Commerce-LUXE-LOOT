@@ -1,0 +1,683 @@
+<%- include('../layouts/userHeader'); %>
+<link rel="stylesheet" href="/css/user/productDetail.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/xzoom/dist/xzoom.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script src="../../js/jQuery-mooZoom-1.0.0.js"></script>
+<link rel="stylesheet" href="../../css/user/jQuery-mooZoom-1.0.0.css">
+
+<div class="shadow-lg rounded m-4 p-2 d-flex" style="min-height: 550px;">
+    
+    <div class="wrapper m-3 bg-light.bg-gradient d-flex " style="max-height: 100%;">
+        <div class="img-selection ">
+          <div class="img-thumbnail selected border border-3 ">
+            <img src="/uploads/<%= product.images[0] %>" width="100%">
+          </div>
+          <div class="img-thumbnail border border-3">
+            <img src="/uploads/<%= product.images[1] %>" width="100%">
+          </div>
+          <div class="img-thumbnail border border-3">
+            <img src="/uploads/<%= product.images[2] %>" width="100%">
+          </div>
+          <div class="img-thumbnail border border-3">
+            <img src="/uploads/<%= product.images[3] %>" width="100%">
+          </div>
+        </div>
+        <!-- <div class="big-img">
+            <img src="/uploads/<%= product.images[0] %>" class=" imgZoom" ref="/uploads/<%= product.images[0] %>">
+        </div> -->
+
+
+        <!-- <div class="large-5 column">
+          <div class="xzoom-container">
+            <img class="display-img" id="xzoom-default" src="/uploads/<%= product.images[0] %>" xoriginal="/uploads/<%= product.images[0] %>" />
+          </div>
+        </div> -->
+
+        <!-- <script>
+          (function ($) {
+    $(document).ready(function() {
+        $('.display-img, .xzoom-gallery').xzoom({zoomWidth: 900, title: true, tint: '#333', Xoffset: 15});
+       
+    });
+})(jQuery);
+
+        </script> -->
+
+
+        <img class="imgZoom display-img" alt="test" src="/uploads/<%= product.images[0] %>" ref="/uploads/<%= product.images[0] %>" />
+
+       
+    </div>
+    <style>
+      .mooZoom-big-detail { 
+    -moz-box-shadow: 0px 0px 10px #000;
+    -webkit-box-shadow: 0px 0px 10px #000;
+    box-shadow: 0px 0px 10px #000;
+}
+    </style>
+    <script type="text/javascript">
+            var options = {
+                zoom: {
+                    width: 100,
+                    height: 100,
+                    zIndex: 600
+                },
+                overlay: {
+                    opacity: 0.65,
+                    zIndex: 500,
+                    backgroundColor: '#000000',
+                    fade: true
+                },
+                detail: {
+                    zIndex: 600,
+                    margin: {
+                        top: 0,
+                        left: 190
+                    },
+                    fade: true
+                }
+            };
+            jQuery(document).ready(function() {
+                jQuery('.imgZoom').mooZoom(options);
+            });
+        </script>
+
+     <div class="m-5 col-6 lg-12">
+        <h4><%= product.brand.Name %></h4>
+        <h6 class="fw-bold"><%= product.productName  %></h6>
+        <h4>₹<%= product.discountPrice  %></h4>
+        <h5 class="text-decoration-line-through">₹<%= product.price %></h5> 
+        <p class="fw-normal"><%= product.description %></p> 
+        <ul>
+            <% product.specification.forEach(val=>{ %>
+                <li class="font-monospace fs-5"><%= val %></li>
+            <%}) %>
+        </ul>
+        <div class="mt-4">
+          <a href="#" onclick="addToCart('<%- product._id %>')" class="btn btn-primary shadow-0" role="button">Add to Cart</a>
+            <a href="#" onclick="addToWaishlist('<%- product._id %>')" class="btn btn-light border px-2 pt-2 icon-hover"><i class="fas fa-heart fa-lg px-1"></i></a>
+        </div>
+        <% if(product.stock<=0){%>
+          <button type="button" class="btn btn-outline-danger ms-5 mt-4" onclick="showBuyNowModal()" disabled>Out of Stock</button>
+          <%}else{%>
+          
+            <button type="button" class="btn btn-outline-warning ms-5 mt-4" onclick="showBuyNowModal()">Buy Now</button>
+          <%}%>
+            <!-- <button class="btn btn-outline-warning ms-5 mt-4" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Buy Now</button> -->
+    </div> 
+
+    <!-- --------------------------buy now modal-------------------------------- -->
+    <div class="modal fade modal-lg" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 text-warning" id="exampleModalToggleLabel">Order Details</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="display: flex;">
+            <div class="card" style="width: 50%;">
+              <img src="/uploads/<%= product.images[0] %>" class="card-img-top" alt="...">
+              <div class="card-body">
+                <div class="align-items-center text-center shadow p-2">
+                  <h4><%= product.brand.Name %></h4>
+                  <h6 class="fw-bold"><%= product.productName  %></h6>
+                  <button class="btn btn-sm btn-primary" onclick="changeQuantity(1,'<%= product.price  %>')">+</button><span id="quantity" class="m-2">1</span><button class="btn btn-sm btn-primary" onclick="changeQuantity(-1,'<%= product.price  %>')"> - </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 order-md-2 mb-4 ms-5">
+              <div class="card mb-3 border shadow-0">
+                <div class="card-body">
+                  <form>
+                    <div class="form-group">
+                      <label class="form-label">Have coupon?</label>
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          class="form-control border"
+                          name=""
+                          placeholder="Coupon code"
+                        />
+                        <button class="btn btn-light border">Apply</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="card shadow-0 border">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <p class="mb-2">Total price:</p>
+                    <p class="mb-2 contentToReload-totalprice" id="totalprice">
+                      ₹<%= product.price  %>
+                    </p>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <p class="mb-2">Discount:</p>
+                    <p class="mb-2 text-success" id="discount">
+                      -₹<%= product.price-product.discountPrice %>
+                    </p>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <p class="mb-2">TAX:</p>
+                    <p class="mb-2">₹14.00</p>
+                  </div>
+                  <hr />
+                  <div class="d-flex justify-content-between">
+                    <p class="mb-2">Total price:</p>
+                    <p class="mb-2 fw-bold " id="subtotal">
+                      ₹<%= product.discountPrice %>
+                    </p>
+                  </div>
+                </div>
+                <div class="m-1 d-flex justify-content-center align-items-center">
+                  <button class="btn btn-success"  data-bs-toggle="modal" onclick="second()">Check Out</button>
+              </div>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="modal-footer">
+            <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" onclick="second()">Open second modal</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+    <!-- .........................................buy now modal end.......................................................... -->
+  
+    <!-- ..............................................single checkout modal............................................................ -->
+    <div class="modal fade modal-lg" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Check Out</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+           
+           
+              <div class="row p">
+                <div class="col-md-4 order-md-2">
+                  <div class="card shadow-0 border">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <p class="mb-2">Total price:</p>
+                        <p class="mb-2 contentToReload-totalprice" id="checkoutTotalprice">
+                          
+                        </p>
+                      </div>
+                      <div class="d-flex justify-content-between">
+                        <p class="mb-2">Discount:</p>
+                        <p class="mb-2 text-success contentToReload-discount" id="checkoutDiscount">
+                          
+                        </p>
+                      </div>
+                      <hr />
+                      <div class="d-flex justify-content-between">
+                        <p class="mb-2">Total price:</p>
+                        <p class="mb-2 fw-bold contentToReload-discount" id="checkoutSubtotal">
+                          
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-8 order-md-1">
+                  <div class="row">
+                    <div class="justify-content-between">
+                      <h4>Delivery Address</h4>
+                    </div>
+                  </div>
+          
+                  <div>
+                    <% Address.forEach(function(address, index) { %>
+                    <div class="shadow p-3">
+                      <!-- Display address details -->
+                      <p><strong>Name:</strong> <%= address.name %></p>
+                      <p><strong>Address Lane:</strong> <%= address.addressLane %></p>
+                      <p><strong>City:</strong> <%= address.city %></p>
+                      <p><strong>Pincode:</strong> <%= address.pincode %></p>
+                      <p><strong>State:</strong> <%= address.state %></p>
+                      <p><strong>Mobile:</strong> <%= address.mobile %></p>
+          
+                      <!-- Radio button to select the address -->
+                      <input
+                        type="radio"
+                        id="address<%= index %>"
+                        name="selectedAddress"
+                        value="<%= address._id %>"
+                        required
+                        checked
+                      />
+                      <label for="address<%= index %>">Select</label>
+                    </div>
+                    <hr />
+                    <!-- Add a horizontal line between addresses -->
+                    <% });  %>
+          
+                    <div>
+                      <h5 class="font-size-14 mb-3">Payment method :</h5>
+                      <div class="row">
+                          <!-- <div class="col-lg-3 col-sm-6">
+                              <div data-bs-toggle="collapse">
+                                  <label class="card-radio-label">
+                                      <input type="radio" name="pay-method" id="pay-methodoption1" class="card-radio-input">
+                                      <span class="card-radio py-3 text-center text-truncate">
+                                          <i class="bx bx-credit-card d-block h2 mb-3"></i>
+                                          Credit / Debit Card
+                                      </span>
+                                  </label>
+                              </div>
+                          </div> -->
+                          
+                          <div class="col-lg-3 col-sm-6">
+                              <div>
+                                  <label class="card-radio-label">
+                                      <input type="radio" name="paymentMethod" id="pay-methodoption2" value="RazoPay" class="card-radio-input" checked="">
+                                      <span class="card-radio py-3 text-center text-truncate">
+                                          <i class="bx bxl-paypal d-block h2 mb-3"></i>
+                                          RazorPay
+                                      </span>
+                                  </label>
+                              </div>
+                          </div>
+          
+                          <div class="col-lg-3 col-sm-6">
+                              <div>
+                                    <label class="card-radio-label">
+                                      <input type="radio" name="paymentMethod" id="pay-methodoption3" value="Cash on Delivery" class="card-radio-input"  >
+          
+                                      <span class="card-radio py-3 text-center text-truncate">
+                                          <i class="bx bx-money d-block h2 mb-3"></i>
+                                          <span>Cash on Delivery</span>
+                                      </span>
+                                  </label>
+                              </div>
+                          </div>
+                          
+                      </div>
+                  </div>
+                    <hr class="mb-4" />
+                    <% if(Address.length==0){%>
+                    <button
+                      id="submitOrderBtn"
+                      class="btn btn-primary btn-lg btn-block"
+                      type="submit"
+                      disabled
+                    >
+                      Place Order
+                    </button>
+                    <%}else{%>
+                    <button
+                      id="submitOrderBtn"
+                      class="btn btn-success btn-sm btn-block"
+                      onclick="singleOrderplacement('<%- product._id %>')"
+                    >
+                      Place Order
+                    </button>
+                    <%}%>
+                  </div>
+                </div>
+              </div>
+
+           </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ......................................................single Checkout modal end.................................................. -->
+      
+</div>
+
+
+<script>
+    var thumbs = $('.img-selection').find('img');
+
+thumbs.click(function(){
+  var src = $(this).attr('src');
+  var dp = $('.display-img');
+  var img = $('.zoom');
+  dp.attr('src', src);
+  dp.attr('ref',src)
+  img.attr('src', src);
+  
+});
+
+$(".img-thumbnail").click(function(){
+  $('.img-thumbnail').removeClass('selected');
+  $(this).addClass('selected');
+});
+
+</script>
+
+
+<script>
+   function addToCart(productId) {
+        $.ajax({
+            url: `/addtocart/${productId}`,
+            method: 'GET',
+            success: function(res) {
+            if (res.user && res.response) {
+                Toastify({
+                    text: res.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+            } else if(res.user && !res.response){
+                Toastify({
+                    text: res.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+            }else{
+              Toastify({
+                    text: 'Plese login',
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+            }
+            // Show toast notification
+
+            // Optional: You can redirect the user to the cart page after adding the item
+            // window.location.href = "/cart";
+        },
+            error: function(error) {
+                // Show toast notification for error, if needed
+                toastr.error('Failed to add item to cart');
+            }
+        });
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function(){
+
+$('#itemslider').carousel({ interval: 3000 });
+
+$('.carousel-showmanymoveone .item').each(function(){
+var itemToClone = $(this);
+
+for (var i=1;i<6;i++) {
+itemToClone = itemToClone.next();
+
+if (!itemToClone.length) {
+itemToClone = $(this).siblings(':first');
+}
+
+itemToClone.children(':first-child').clone()
+.addClass("cloneditem-"+(i))
+.appendTo($(this));
+}
+});
+});
+
+function showBuyNowModal() {
+  $.ajax({
+    url: '/singleOrder',
+    method: 'GET',
+    success: function(res){
+      if(res.success){
+         $('#exampleModalToggle').modal('show');
+      }else{
+        Toastify({
+                    text: 'Plese login',
+                    duration: 800,
+                    close: false,
+                    gravity: "bottom",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+      }
+    }
+  })
+  }
+
+
+  let totalPrice,discount
+  function changeQuantity(change,price) {
+        // Get the current quantity value from the span element
+        let quantityElement = document.getElementById("quantity");
+        let totalPriceElement = document.getElementById("totalprice");
+        let discountElement = document.getElementById("discount");
+        let subtotalElement = document.getElementById("subtotal");
+        let currentQuantity = parseInt(quantityElement.innerText);
+        let newQuantity = currentQuantity + change;
+        if(currentQuantity<=1){
+          totalPrice = parseInt(totalPriceElement.innerText.slice(1)); // Remove "₹" and parse as integer
+          discount = parseInt(discountElement.innerText.slice(2)); // Remove "-₹" and parse as integer
+        }
+        let dis=totalPrice - discount
+        let totaldiscount=(discount*newQuantity)
+        let newSubtotal = (totalPrice - discount) * newQuantity; // Calculate new subtotal
+
+        if(newQuantity<=5&&newQuantity>=1){
+        quantityElement.innerHTML=newQuantity
+        totalPriceElement.innerHTML=`₹${totalPrice*newQuantity}`
+        discountElement.innerHTML=`-₹${totaldiscount}`
+        subtotalElement.innerHTML=`₹${newSubtotal}`
+
+        }
+    }
+
+    function second(){
+      
+      let quantityElement = document.getElementById("quantity");
+      let totalPriceElement = document.getElementById("totalprice");
+      let discountElement = document.getElementById("discount");
+      let subtotalElement = document.getElementById("subtotal");
+
+      let checkouttotalprice=document.getElementById("checkoutTotalprice")
+      let checkoutdiscount=document.getElementById("checkoutDiscount")
+      let checkoutsubtotal=document.getElementById("checkoutSubtotal")
+
+      
+      let currentQuantity = parseInt(quantityElement.innerText);
+      let ttotalPrice = parseInt(totalPriceElement.innerText.slice(1)); // Remove "₹" and parse as integer
+      let  ddiscount = parseInt(discountElement.innerText.slice(2)); // Remove "-₹" and parse as integer
+      let subtotal = parseInt(subtotalElement.innerText.slice(1))
+      checkouttotalprice.innerHTML=`₹${ttotalPrice}`;
+      checkoutdiscount.innerHTML=`-₹${ddiscount}`;
+      checkoutsubtotal.innerHTML=`₹${ttotalPrice-ddiscount}`
+      if(subtotal>=50000){
+        document.getElementById("pay-methodoption3").disabled = true;
+      }
+      $('#exampleModalToggle2').modal('show');
+      
+    }
+
+    function singleOrderplacement(productid){
+      let quantityElement = document.getElementById("quantity");
+      let paymentMethodRadios = document.getElementsByName("paymentMethod");
+      let addressRadios = document.getElementsByName("selectedAddress");
+      let checkouttotalprice=document.getElementById("checkoutTotalprice")
+      let checkoutdiscount=document.getElementById("checkoutDiscount")
+      let checkoutSubtotal= document.getElementById('checkoutSubtotal')
+
+      let quantity=parseInt(quantityElement.innerText)
+      let totalprice=parseInt(checkouttotalprice.innerText.slice(1))
+      let discount=parseInt(checkoutdiscount.innerText.slice(2))
+      let subtotal=parseInt(checkoutSubtotal.innerText.slice(1))
+      let selectedPaymentMethod,selectedAddressId;
+      for (var i = 0; i < paymentMethodRadios.length; i++) {
+      if (paymentMethodRadios[i].checked) {
+        selectedPaymentMethod = paymentMethodRadios[i].value;
+        break;
+      }
+      }
+
+      for (var i = 0; i < addressRadios.length; i++) {
+        if (addressRadios[i].checked) {
+        selectedAddressId = addressRadios[i].value;
+        break;
+        }
+      }
+
+      $.ajax({
+          type: 'POST',
+          url: '/singleOrder', // change this to your backend endpoint
+          data: {
+            quantity:quantity,
+            productid:productid,
+            addressid:selectedAddressId,
+            paymentMethod:selectedPaymentMethod,
+            totalPrice:totalPrice,
+            discountPrice:discount,
+            subtotal:subtotal
+          },
+          success: function(response){
+            console.log(response)
+            if(response.success){
+              console.log(res.paymentMethod)
+              if(response.paymentMethod=='Cash on Delivery') location.href='/paymentSuccess';
+                else if(response.paymentMethod=='Online') {
+                    payment(response)
+                }
+            }else{
+              // Handle success response
+              Swal.fire({
+                 
+                 icon: "error",
+                 title: "An error occured",
+                 showConfirmButton: false,
+                 timer: 1500
+               });
+               $('#exampleModalToggle2').modal('hide');
+
+              }
+               
+          },
+          error: function(xhr, status, error){
+              // Handle error
+              console.error(xhr.responseText);
+              // You can also show an error message here
+          }
+      });
+    }
+
+
+    //razorpay
+function payment(res){
+  console.log("this is payment")
+  console.log(res)
+  var options = {
+    "key": "rzp_test_mX1xtg6FOs0mN5", 
+    "amount": res.order.amount, 
+    "currency": "INR",
+    "name": "Luxe Loot", //your business name
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": res.order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        pymentverify(res.order,response)
+    },
+    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        "name": res.address.name, //your customer's name
+        "email": res.Email, 
+        "contact": res.address.mobile  //Provide the customer's phone number for better conversion rates 
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+  alert(response.error.code);
+  alert(response.error.description);
+  alert(response.error.source);
+  alert(response.error.step);
+  alert(response.error.reason);
+  alert(response.error.metadata.order_id);
+  alert(response.error.metadata.payment_id);
+});
+rzp1.open();
+
+}
+
+function pymentverify(order,response){
+    $.ajax({
+      url:'/verifyPayment',
+      method:'POST',
+      data:{
+        order,
+        response
+      },
+      success:(res)=>{
+        if(res.success) location.href ='/paymentSuccess';
+      },
+      error:(err)=>{
+        
+      }
+
+    })
+}
+
+
+
+
+
+    function addToWaishlist(productid){
+    let wishlistCountSpan = document.getElementById('wishlistCount');
+    let currentCount = parseInt(wishlistCountSpan.textContent);
+    
+      $.ajax({
+        url:'/addtoWishlist',
+        data:{
+          productid:productid
+        },
+        method:'POST',
+        success: function(response){
+          if(!response.exist){
+            wishlistCountSpan.textContent = currentCount+1
+          }
+          Toastify({
+                      text: response.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+        },
+        error: function(err){
+          alert(err)
+        }
+      })
+
+  }
+  </script>
+
+<%- include('../layouts/userFooter'); %>

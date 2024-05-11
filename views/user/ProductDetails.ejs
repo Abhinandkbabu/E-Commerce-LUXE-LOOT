@@ -1,0 +1,386 @@
+<%- include('../layouts/userHeader'); %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+
+*{
+    font-family: 'Open Sans', sans-serif;
+}
+
+.product-title{
+    font-size: 2.8rem;
+    text-transform: capitalize;
+    font-weight: 700;
+    position: relative;
+    color: #12263a;
+    margin-bottom: -2px;
+}
+.Product-name::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 80px;
+    background: #12263a;
+    margin-top: 2px;
+}
+
+.Product-name{
+  font-size: 1rem;
+    text-transform: capitalize;
+    font-weight: 600;
+    position: relative;
+    color: #2f4964;
+    padding-bottom: 5px;
+}
+.product-price{
+    margin: 1rem 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.product-price span{
+    font-weight: 400;
+}
+.last-price span{
+    color: #f64749;
+    text-decoration: line-through;
+}
+.new-price span{
+    color: #256eff;
+}
+
+.product-detail p{
+    font-size: 0.9rem;
+    padding: 0.3rem;
+    opacity: 0.8;
+}
+.product-detail ul{
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+.product-detail ul li{
+    margin: 0;
+    list-style: none;
+    background: url(https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/checked.png) left center no-repeat;
+    background-size: 18px;
+    padding-left: 1.7rem;
+    margin: 0.4rem 0;
+    font-weight: 600;
+    opacity: 0.9;
+}
+.product-detail ul li span{
+    font-weight: 400;
+}
+.purchase-info{
+    margin: 1.5rem 0;
+}
+.purchase-info input,
+.purchase-info .btn{
+    border: 1.5px solid #ddd;
+    border-radius: 25px;
+    text-align: center;
+    padding: 0.45rem 0.8rem;
+    outline: 0;
+    margin-right: 0.2rem;
+    margin-bottom: 1rem;
+}
+.purchase-info input{
+    width: 60px;
+}
+.purchase-info .btn{
+    cursor: pointer;
+    color: #fff;
+}
+.purchase-info .btn:first-of-type{
+    background: #256eff;
+}
+.purchase-info .btn:last-of-type{
+    background: #f64749;
+}
+.purchase-info .btn:hover{
+    opacity: 0.9;
+}
+
+
+#image-container {
+  width: 500px; /* Adjust width as needed */
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+}
+
+.slideshow-thumbnails {
+  width: 100px; /* Adjust thumbnail width as needed */
+  height: auto;
+  margin-right: 10px; /* Adjust spacing between thumbnails */
+}
+
+.slideshow-thumbnails.active {
+  border: 2px solid rgb(199, 227, 214); /* Example border for active thumbnail */
+}
+
+</style>
+
+<body>
+  <div class="container mt-4" style="display: flex;">
+  <div style="width: 50%; z-index: inherit;">
+    <div id='lens'></div>
+  
+      <div id='slideshow-items-container'>
+        <% product.images.forEach((path,index)=>{
+          if(index==0){%><img class='slideshow-items active' style="width: 400px; height: 400px" src='/uploads/<%= path %>?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80' > <%}else{%>
+            <img class='slideshow-items' style="width: 400px; height: 400px;" src='/uploads/<%= path %>?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80'>
+
+          <%}%>
+        <%})%>
+        
+      </div>
+  
+    <div id='result'></div>
+    <div id="image-container">
+      <div class='row'>
+        <% product.images.forEach((path,index)=>{
+          if(index==0){%><img class='slideshow-thumbnails active' style="width: 80px; height: 80px;" src='/uploads/<%= path %>?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=80'> <%}else{%>
+            <img class='slideshow-thumbnails active' style="width: 80px; height: 80px;" src='/uploads/<%= path %>?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=80'>
+          <%}%>
+        <%})%>
+      </div>
+    </div>
+  </div>
+  <div style="width: 50%;">
+    <div class = "product-content">
+      <h2 class = "product-title"><%= product.brand.Name %></h2>
+      <h6 class="Product-name"><%= product.productName  %></h6>
+      <div class = "product-price">
+        <p class = "last-price">Old Price: <span>₹<%= product.price %></span></p>
+        <p class = "new-price">New Price: <span>₹<%= product.discountPrice  %></span></p>
+      </div>
+
+      <div class = "product-detail">
+     
+        <p><%= product.description %></p>
+        
+        <ul>
+          <% product.specification.forEach(val=>{ %>
+            <li><span><%= val %></span></li>
+        <%}) %>
+          
+        </ul>
+      </div>
+
+      <div class = "purchase-info">
+        <% if(product.stock < 10){ %>
+          <span class="badge rounded-pill text-bg-danger text-light"><% if(product.stock==0){%> Out Of Stock <%}else{%> <%= product.stock %>&nbsp;Left <% } %></span>
+        <% } %>
+        <button type = "button" class = "btn" onclick="addToCart('<%- product._id %>')">
+          <i class = "fas fa-shopping-cart"></i>Add to Cart 
+        </button>
+        <button type = "button" class = "btn" onclick="addToWaishlist('<%- product._id %>')"><i class="fas fa-heart fa-lg px-1"></i></button>
+      </div>
+
+    
+    </div>
+  </div>
+  </div>
+
+</body>
+
+<script>
+  function addToCart(productId) {
+       $.ajax({
+           url: `/addtocart/${productId}`,
+           method: 'GET',
+           success: function(res) {
+           if (res.user && res.response) {
+               Toastify({
+                   text: res.msg,
+                   duration: 800,
+                   close: false,
+                   gravity: "top",
+                   position: 'center',
+                   style: {
+                       background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                       color: "#fff",
+                       borderRadius: "15px",
+                   }
+               }).showToast();
+           } else if(res.user && !res.response){
+               Toastify({
+                   text: res.msg,
+                   duration: 800,
+                   close: false,
+                   gravity: "top",
+                   position: 'center',
+                   style: {
+                       background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                       color: "#fff",
+                       borderRadius: "15px",
+                   }
+               }).showToast();
+           }else{
+             Toastify({
+                   text: 'Plese login',
+                   duration: 800,
+                   close: false,
+                   gravity: "top",
+                   position: 'center',
+                   style: {
+                       background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                       color: "#fff",
+                       borderRadius: "15px",
+                   }
+               }).showToast();
+           }
+           // Show toast notification
+
+           // Optional: You can redirect the user to the cart page after adding the item
+           // window.location.href = "/cart";
+       },
+           error: function(error) {
+               // Show toast notification for error, if needed
+               toastr.error('Failed to add item to cart');
+           }
+       });
+   }
+
+   function addToWaishlist(productid){
+    let wishlistCountSpan = document.getElementById('wishlistCount');
+    let currentCount = parseInt(wishlistCountSpan.textContent);
+    
+      $.ajax({
+        url:'/addtoWishlist',
+        data:{
+          productid:productid
+        },
+        method:'POST',
+        success: function(response){
+          
+          if(response.exist== false){
+            wishlistCountSpan.textContent = currentCount+1;
+          }
+          Toastify({
+                      text: response.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+        },
+        error: function(err){
+          alert(err)
+        }
+      })
+
+  }
+</script>
+<script>
+ $(document).ready(function() {
+  var container = $('#image-container');
+  var scrollStep = 150; // Adjust scroll step as needed
+
+  $('#scroll-left').click(function() {
+    container.animate({ scrollLeft: '-=' + scrollStep }, 'slow');
+  });
+
+  $('#scroll-right').click(function() {
+    container.animate({ scrollLeft: '+=' + scrollStep }, 'slow');
+  });
+});
+
+</script>
+
+</body>
+
+
+<style>
+  .slideshow-items {
+  width: 500px;
+}
+.slideshow-thumbnails {
+  width: 100px;
+}
+#slideshow-items-container { display: inline-block; position: relative; }
+
+#lens { background-color: rgba( 233, 233, 233, 0.4 ) }
+#lens, #result { position: absolute; display: none; z-index: 1; }
+.slideshow-items { display: none; }
+.slideshow-items.active { display: block; }
+.slideshow-thumbnails { opacity: 0.5; }
+.slideshow-thumbnails.active { opacity: 1; }
+#lens, .slideshow-items, .slideshow-thumbnails, #result { border: solid var(--light-grey-2) 1px; }
+
+</style>
+
+<script>
+  $(document).ready(function() {
+
+$('.slideshow-thumbnails').hover(function() { changeSlide($(this)); });
+
+$(document).mousemove(function(e) {
+  var x = e.clientX; var y = e.clientY;
+  
+  var x = e.clientX; var y = e.clientY;
+
+  var imgx1 = $('.slideshow-items.active').offset().left;
+  var imgx2 = $('.slideshow-items.active').outerWidth() + imgx1;
+  var imgy1 = $('.slideshow-items.active').offset().top;
+  var imgy2 = $('.slideshow-items.active').outerHeight() + imgy1;
+
+  if ( x > imgx1 && x < imgx2 && y > imgy1 && y < imgy2 ) {
+    $('#lens').show(); $('#result').show();
+    imageZoom( $('.slideshow-items.active'), $('#result'), $('#lens') );
+  } else {
+    $('#lens').hide(); $('#result').hide();
+  }
+
+});
+
+});
+
+function imageZoom( img, result, lens ) {
+
+result.width( img.innerWidth() ); result.height( img.innerHeight() );
+lens.width( img.innerWidth() / 2 ); lens.height( img.innerHeight() / 2 );
+
+result.offset({ top: img.offset().top, left: img.offset().left + img.outerWidth() + 10 });
+
+var cx = img.innerWidth() / lens.innerWidth(); var cy = img.innerHeight() / lens.innerHeight();
+
+result.css('backgroundImage', 'url(' + img.attr('src') + ')');
+result.css('backgroundSize', img.width() * cx + 'px ' + img.height() * cy + 'px');
+
+lens.mousemove(function(e) { moveLens(e); });
+img.mousemove(function(e) { moveLens(e); });
+lens.on('touchmove', function() { moveLens(); })
+img.on('touchmove', function() { moveLens(); })
+
+function moveLens(e) {
+  var x = e.clientX - lens.outerWidth() / 2;
+  var y = e.clientY - lens.outerHeight() / 2;
+  if ( x > img.outerWidth() + img.offset().left - lens.outerWidth() ) { x = img.outerWidth() + img.offset().left - lens.outerWidth(); }
+  if ( x < img.offset().left ) { x = img.offset().left; }
+  if ( y > img.outerHeight() + img.offset().top - lens.outerHeight() ) { y = img.outerHeight() + img.offset().top - lens.outerHeight(); }
+  if ( y < img.offset().top ) { y = img.offset().top; }
+  lens.offset({ top: y, left: x });
+  result.css('backgroundPosition', '-' + ( x - img.offset().left ) * cx  + 'px -' + ( y - img.offset().top ) * cy + 'px');
+}
+}
+
+
+function changeSlide(elm) {
+$('.slideshow-items').removeClass('active');
+$('.slideshow-items').eq( elm.index() ).addClass('active');
+$('.slideshow-thumbnails').removeClass('active');
+$('.slideshow-thumbnails').eq( elm.index() ).addClass('active');
+}
+
+</script>
+<%- include('../layouts/userFooter'); %>

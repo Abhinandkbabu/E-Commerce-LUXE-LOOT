@@ -1,0 +1,180 @@
+<%- include('../layouts/userHeader'); %>
+<style>
+  .wishlist-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+.wishlist-message {
+  text-align: center;
+  animation: bounce 1s infinite alternate;
+}
+
+.wishlist-icon {
+  width: 100px; /* Adjust size as needed */
+  height: auto;
+}
+
+.message {
+  font-size: 18px;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-10px);
+  }
+}
+
+</style>
+<!-- cart -->
+<div class="col-lg-9 container mt-5">
+    <div class="card border shadow-0">
+      <div class="m-4" id="myDiv">
+        <% if(!data||data.products.length==0){%>
+
+          <div class="wishlist-container">
+            <div class="wishlist-message">
+              <img src="../../images/empty-wishlist.png" alt="Empty Wishlist Icon" class="wishlist-icon" width="120px" height="120px">
+              <p class="message mt-4">Your wishlist is empty</p>
+              <a href="/productList/1" class="btn btn-light border text-success icon-hover-danger"> Back to Shop</a>
+            </div>
+          </div>
+          
+        <%}else{%>
+          <h4 class="card-title mb-4">Your Wishlist </h4>
+        
+          <% data.products.forEach((product) => { %>
+        
+          <div class="row gy-3 mb-4" id="reload">
+            <div class="col-lg-5">
+              <div class="me-lg-5">
+                <div class="d-flex">
+                  <img src="/uploads/<%= product.productid.images[1] %>" class="border rounded me-3" style="width: 96px; height: 96px;" />
+                  <div class="">
+                    <a href="#" class="nav-link"><%= product.productid.brand.Name %></a>
+                    <p class="text-muted"><%= product.productid.productName %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
+              <div class="">
+                <text class="h6">₹<%= product.productid.discountPrice %> </text> <br />
+                <small class="text-muted text-nowrap text-decoration-line-through">₹<%= product.productid.price %></small>
+              </div>
+            </div>
+            <div class="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
+              <div class="float-md-end">
+                <a onclick="addToCart('<%= product.productid._id %>')" class="btn btn-light border px-2 icon-hover-primary"><i class="fa-solid fa-cart-plus" style="color: #121212;"></i></a>
+                <a onclick="removeWishlist('<%= product.productid._id %>')" class="btn btn-light border text-danger icon-hover-danger"> Remove</a>
+              </div>
+            </div>
+          </div>
+
+        <% }) %>
+        <%}%>
+        
+      </div>
+    </div>
+  </div>
+  <!-- cart -->       
+
+
+  <script>
+    function addToCart(productId) {
+        let cartCountSpan = document.getElementById('cartCount');
+        let currentCount = parseInt(cartCountSpan.textContent);
+        console.log(currentCount)
+      $.ajax({
+          url: `/addtocart/${productId}`,
+          method: 'GET',
+          success: function(res) {
+              if (res.user && res.response) {
+                  Toastify({
+                      text: res.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+                  if(!res.exist){
+                    cartCountSpan.textContent = currentCount+1
+                  }
+              } else if(res.user && !res.response){
+                  Toastify({
+                      text: res.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+                 
+              }else{
+                Toastify({
+                      text: 'Plese login',
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+              }
+          },
+          error: function(error) {
+              // Show toast notification for error, if needed
+              toastr.error('Failed to add item to cart');
+          }
+      });
+  }
+
+  function removeWishlist(productid){
+    let wishlistCountSpan = document.getElementById('wishlistCount');
+    let currentCount = parseInt(wishlistCountSpan.textContent);
+    $.ajax({
+      url:'/removewishlistitem',
+      data:{
+        productid:productid
+      },
+      method:'POST',
+      success: function(res){
+        Toastify({
+                      text: res.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+                  wishlistCountSpan.textContent = currentCount-1
+                  $('#myDiv').load(location.href + ' #myDiv');
+      },
+      error: function(error){
+        toastr.error('Failed to add item to Wishlist');
+      }
+    })
+  }
+  </script>
+<%- include('../layouts/userFooter'); %>

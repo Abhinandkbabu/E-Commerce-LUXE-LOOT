@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Sign</title>
+	<link rel="stylesheet" type="text/css" href="/css/user/userlogin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div class="main">  	
+		<input type="checkbox" id="chk" aria-hidden="true">
+
+			<div class="signup">
+				<form action="/signUp" method="post">
+					<label for="chk" aria-hidden="true">Sign up</label>
+					<input type="text" name="Name" placeholder="Name" id="name-check" required oninput="validateName()">
+					<input type="email" name="Email" placeholder="Email" required oninput="validateEmail()">
+					<input type="password" name="Password" placeholder="Password" id="password-check" required oninput="validatePassword()">
+					<input type="password" name="ConfirmPassword" placeholder="Confirm Password" id="repeat-password" required oninput="validateRepeatPassword()">
+					<span id="error"></span>
+					<% if(messages.error){  %>
+						<span> <%= messages.error  %></span>
+						<% } %>
+					<button type="submit" id="signup-btn">Sign up</button>
+				</form>
+			</div>
+
+			<div class="login">
+				<form action="/signIn" method="post">
+					<label for="chk" aria-hidden="true">Login</label>
+					<input type="email" name="Username" placeholder="Username" id="sign-email-validation" required oninput="signinvalidateEmail()" >
+					<input type="password" name="Password" placeholder="Password" id="sign-password-check" required oninput="signvalidatePassword()">
+                    <span id="error"></span>
+					<button type="submit">Login</button>
+				</form>
+				<span><a href="/forgotPassword">Forgot Password?</a></span>
+			</div>
+	</div>
+</body>
+
+<script>
+		let submitButton = document.getElementById('signup-btn');
+		function validateName() {
+			var nameInput = document.getElementById('name-check');
+			var nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+			var nameError = document.getElementById('error');
+			if (!nameRegex.test(nameInput.value)) {
+				nameError.innerText = 'Invalid name format!';
+				submitButton.disabled = true;
+			} else {
+				nameError.innerText = '';
+				submitButton.disabled = false;
+				
+			}
+		}
+
+     	function validateEmail() {
+            var emailInput = document.getElementById('email-validation');
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+            var emailError = document.getElementById('error');
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.innerText = 'Invalid email address';
+				submitButton.disabled = true
+            } else {
+                emailError.innerText = '';
+				submitButton.disabled = false
+            }
+        }
+
+        function validatePassword() {
+            var passwordInput = document.getElementById('password-check');
+            var passwordError = document.getElementById('error');
+            if (passwordInput.value.trim().length < 8 || /\s/.test(passwordInput.value)) {
+                passwordError.innerText = 'Password must be at least 8 characters';
+				submitButton.disabled = true
+            } else {
+                passwordError.innerText = '';
+				submitButton.disabled = false
+            }
+        }
+
+		function validateRepeatPassword() {
+            var repeatPasswordInput = document.getElementById('repeat-password');
+            var passwordInput = document.getElementById('password-check');
+            var repeatPasswordError = document.getElementById('error');
+            if (repeatPasswordInput.value.trim() !== passwordInput.value.trim()) {
+                repeatPasswordError.innerText = 'Passwords do not match';
+				submitButton.disabled = true
+            } else {
+                repeatPasswordError.innerText = '';
+				submitButton.disabled = false
+            }
+        }
+
+
+		function signinvalidateEmail() {
+            var emailInput = document.getElementById('sign-email-validation');
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+            var emailError = document.getElementById('error');
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.innerText = 'Invalid email address';
+            } else {
+                emailError.innerText = '';
+            }
+        }
+
+		function signvalidatePassword() {
+            var passwordInput = document.getElementById('sign-password-check');
+            var passwordError = document.getElementById('error');
+            if (passwordInput.value.trim().length < 8 || /\s/.test(passwordInput.value)) {
+                passwordError.innerText = 'Password must be at least 8 characters';
+            } else {
+                passwordError.innerText = '';
+            }
+        }
+</script>
+
+
+</html>

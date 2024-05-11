@@ -1,0 +1,858 @@
+<%- include('../layouts/userHeader')  %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+  .card-radio {
+    background-color: #fff;
+    border: 2px solid #eff0f2;
+    border-radius: .75rem;
+    padding: .5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block
+}
+
+.card-radio:hover {
+    cursor: pointer
+}
+
+.card-radio-label {
+    display: block
+}
+.card-radio-input {
+  display: none
+}
+
+.card-radio-input:checked+.card-radio {
+  border-color: #3b76e1!important
+}
+
+</style>
+<body>
+  <div class="container my-5">
+    <div class="row p">
+      <div class="col-md-4 order-md-2 mb-4">
+        <div class="card mb-3 border shadow-0">
+          <div class="card-body">
+            <div style="text-align: center;"><h4> <i class="fa-solid fa-wallet me-1" style="color: #ff8800;"></i>:<span id="walletAmount"><%= walletAmount %></span></h4></div>
+            <div style="text-align: center;"><h6> Use Wallet Amount</h6> </div>
+            <div>
+              <button class="btn btn-sm btn-light p-1" onclick="changeWalletAmount(-100)"><i class="fa-solid fa-minus" style="color: #e40101;"></i></button>
+              <span id="ApplywalletAmount">500</span>
+              <button class="btn btn-sm btn-light" onclick="changeWalletAmount(100)"><i class="fa-solid fa-plus" style="color: #284200;"></i></button>
+              <button class="btn btn-sm btn-success" id="applayWalletAmount" onclick="applyWalletAmount()">Apply</button>
+            </div>
+            <div id="WalletDetailsContainer"></div>
+            
+
+            <!-- <form id="walletForm">
+              <div class="form-group">
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control border"
+                    name="amount"
+                    id="amount"
+                    placeholder="Use Wallet Amount"
+                  />
+                  <button type="submit" class="btn btn-light border">Apply</button>
+                </div>
+              </div>
+            </form> -->
+          </div>
+        </div>
+        <div class="card mb-3 border shadow-0">
+          <div class="card-body">
+            <form id="couponForm">
+              <div class="form-group">
+                <label class="form-label">Have coupon?</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control border"
+                    name="CouponCode"
+                    placeholder="Coupon code"
+                  />
+                  <button class="btn btn-light border">Apply</button>
+                </div>
+              </div>
+            </form>
+            <div id="couponDetailsContainer"></div>
+
+            <div class="d-flex justify-content-center mt-2">
+              <button type="button" class="btn btn-primary btn-sm" onclick="showAvailableCoupons()">Available Coupons</button>
+            </div>            
+          </div>
+        </div>
+        <div class="card shadow-0 border">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p class="mb-2 contentToReload-totalprice">
+                <%= cart.totalprice %>
+              </p>
+            </div>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Discount:</p>
+              <p class="mb-2 text-success contentToReload-discount">
+                -₹<%= cart.subtotal %>
+              </p>
+            </div>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Coupon :</p>
+              <p class="mb-2 text-success contentreload-wallet" id="couponDiscount">-₹0</p>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p class="mb-2 fw-bold contentToReload-total">
+                ₹<%= cart.totaldiscount  %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8 order-md-1 p-5">
+        <div class="row">
+          <div class="justify-content-between">
+            <h4>Delivery Address</h4>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#staticBackdrop"
+            >
+              Add Address
+            </button>
+          </div>
+        </div>
+
+        <form
+          id="orderForm"
+          class="needs-validation"
+          novalidate
+          action=""
+          method="post"
+        >
+          <% Address.forEach(function(address, index) { %>
+          <div class="shadow p-3">
+            <!-- Display address details -->
+            <p><strong>Name:</strong> <%= address.name %></p>
+            <p><strong>Address Lane:</strong> <%= address.addressLane %></p>
+            <p><strong>City:</strong> <%= address.city %></p>
+            <p><strong>Pincode:</strong> <%= address.pincode %></p>
+            <p><strong>State:</strong> <%= address.state %></p>
+            <p><strong>Mobile:</strong> <%= address.mobile %></p>
+
+            <!-- Radio button to select the address -->
+            <input
+              type="radio"
+              id="address<%= index %>"
+              name="selectedAddress"
+              value="<%= address._id %>"
+              required
+              checked
+            />
+            <label for="address<%= index %>">Select</label>
+          </div>
+          <hr />
+          <!-- Add a horizontal line between addresses -->
+          <% }); %>
+          <div>
+            <h5 class="font-size-14 mb-3">Payment method :</h5>
+            <div class="row">
+              <% if(walletAmount >= cart.totaldiscount){ %>
+                <div class="col-lg-3 col-sm-6">
+                    <div data-bs-toggle="collapse">
+                        <label class="card-radio-label">
+                            <input type="radio" name="paymentMethod" id="pay-methodoption1" value="Wallet" class="card-radio-input">
+                            <span class="card-radio py-3 text-center text-truncate">
+                              <i class="bx bx-wallet d-block h2 mb-3"></i>
+                                Wallet
+                            </span>
+                        </label>
+                    </div>
+                </div>
+              <% }else{ %>
+                <div class="col-lg-3 col-sm-6">
+                  <div data-bs-toggle="collapse">
+                      <label class="card-radio-label">
+                          <input type="radio" name="paymentMethod" id="pay-methodoption1" value="Wallet" class="card-radio-input" disabled>
+                          <span class="card-radio py-3 text-center text-truncate">
+                            <i class="bx bx-wallet d-block h2 mb-3"></i>
+                              Wallet
+                          </span>
+                      </label>
+                  </div>
+              </div>
+              <% } %>
+                
+                <div class="col-lg-3 col-sm-6">
+                    <div>
+                      <% if(cart.totaldiscount > 40000){%>
+                        <label class="card-radio-label">
+                          <input type="radio" name="paymentMethod" id="pay-methodoption3" value="Cash on Delivery" class="card-radio-input" checked="" disabled >
+  
+                          <span class="card-radio py-3 text-center text-truncate">
+                              <i class="bx bx-money d-block h2 mb-3"></i>
+                              <span>Cash on Delivery</span>
+                          </span>
+                      </label>
+                        <%}else{%>
+                          <label class="card-radio-label">
+                            <input type="radio" name="paymentMethod" id="pay-methodoption3" value="Cash on Delivery" class="card-radio-input" checked="" >
+    
+                            <span class="card-radio py-3 text-center text-truncate">
+                                <i class="bx bx-money d-block h2 mb-3"></i>
+                                <span>Cash on Delivery</span>
+                            </span>
+                        </label>
+                        <%}%>
+                      
+                        
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-sm-6">
+                    <div>
+                        <% if(cart.totaldiscount<=50000){ %>
+                          <label class="card-radio-label">
+                            <input type="radio" name="paymentMethod" id="pay-methodoption2" value="RazorPay" class="card-radio-input">
+                            <span class="card-radio py-3 text-center text-truncate">
+                                <i class="bx bxl-paypal d-block h2 mb-3"></i>
+                                Online Payment
+                            </span>
+                        </label>
+                          <%}else{%>
+                            <label class="card-radio-label">
+                              <input type="radio" name="paymentMethod" id="pay-methodoption2" value="RazorPay" class="card-radio-input" disabled>
+                              <span class="card-radio py-3 text-center text-truncate">
+                                  <i class="bx bxl-paypal d-block h2 mb-3"></i>
+                                  Online Payment
+                              </span>
+                          </label>
+                            <%} %>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+          <hr class="mb-4" />
+          <% if(Address.length==0){%>
+          <button
+            id="submitOrderBtn"
+            class="btn btn-primary btn-lg btn-block"
+            type="submit"
+            disabled
+          >
+            Place Order
+          </button>
+          <%}else{%>
+          <button
+            id="submitOrderBtn"
+            class="btn btn-success btn-sm btn-block"
+            type="submit"
+          >
+            Place Order
+          </button>
+          <%}%>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Address modal -->
+  <div
+    class="modal fade modal"
+    id="staticBackdrop"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Address</h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body p-2">
+          <form id="addressForm">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                oninput="validateName()"
+              />
+              <div class="invalid-feedback" id="nameError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="addressLane" class="form-label">Address Lane:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="addressLane"
+                name="addressLane"
+                oninput="validateAddressLane()"
+              />
+              <div class="invalid-feedback" id="addressLaneError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="locality" class="form-label">Locality:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="locality"
+                name="locality"
+                oninput="validateLocality()"
+                
+              />
+              <div class="invalid-feedback" id="localityError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="city" class="form-label">City:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="city"
+                name="city"
+                oninput="validateCity()"
+                
+              />
+              <div class="invalid-feedback" id="cityError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="district" class="form-label">District:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="district"
+                name="district"
+                oninput="validateDistrict()"
+                
+              />
+              <div class="invalid-feedback" id="districtError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="state" class="form-label">State:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="state"
+                name="state"
+                oninput="validateState()"
+                
+              />
+              <div class="invalid-feedback" id="stateError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="pincode" class="form-label">Pincode:</label>
+              <input
+                type="number"
+                class="form-control"
+                id="pincode"
+                name="pincode"
+                oninput="validatePincode()"
+                
+              />
+              <div class="invalid-feedback" id="pincodeError"></div>
+            </div>
+            <div class="mb-3">
+              <label for="mobile" class="form-label">Mobile:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="mobile"
+                name="mobile"
+                oninput="validateMobile()"
+                
+              />
+              <div class="invalid-feedback" id="mobileError"></div>
+            </div>
+            <button type="submit" id="addAddressbtn" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<!-- ------------------------------------- coupons modal-------------------------------------------- -->
+<div class="modal fade  modal-xl" id="availablecoupon" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel" style="text-transform: uppercase;
+        font-weight: 900;
+        border-left: 10px solid #fec500;
+        padding-left: 10px;">Availabe Coupons</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+<style>
+  ._failed{ border-bottom: solid 4px red !important; }
+._failed i{  color:red !important;  }
+
+._success {
+    box-shadow: 0 15px 25px #00000019;
+    padding: 45px;
+    width: 100%;
+    text-align: center;
+    margin: 40px auto;
+    border-bottom: solid 4px #28a745;
+}
+
+._success i {
+    font-size: 55px;
+    color: #28a745;
+}
+
+._success h2 {
+    margin-bottom: 12px;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 10px;
+}
+
+._success p {
+    margin-bottom: 0px;
+    font-size: 18px;
+    color: #495057;
+    font-weight: 500;
+}
+</style>
+
+
+<style>
+  .custom-card {
+    display: table-row;
+    width: 49%;
+    background-color: #fff;
+    color: #989898;
+    margin-bottom: 10px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    border-radius: 4px;
+    position: relative;
+}
+
+.custom-date {
+    display: table-cell;
+    width: 25%;
+    position: relative;
+    text-align: center;
+    border-right: 2px dashed #dadde6;
+}
+
+.custom-time {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.custom-card-cont {
+    display: table-cell;
+    width: 75%;
+    font-size: 85%;
+    padding: 10px 10px 30px 50px;
+}
+
+.custom-card-cont h3 {
+    color: #3C3C3C;
+    font-size: 130%;
+}
+
+.custom-card-cont>div {
+    display: table-row;
+}
+
+.custom-card-cont .even-date i,
+.custom-card-cont .even-info i,
+.custom-card-cont .even-date time,
+.custom-card-cont .even-info p {
+    display: table-cell;
+}
+
+.custom-card-cont .even-date i,
+.custom-card-cont .even-info i {
+    padding: 5% 5% 0 0;
+}
+
+.custom-card-cont .even-info p {
+    padding: 30px 50px 0 0;
+}
+
+.custom-card-cont .even-date time span {
+    display: block;
+}
+
+.custom-card-cont a {
+    display: block;
+    text-decoration: none;
+    width: 50px;
+    height: 30px;
+    background-color: #D8DDE0;
+    color: #fff;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 2px;
+}
+
+</style>
+<script>
+  function changeWalletAmount(amount){
+    var value = $('#ApplywalletAmount').text();
+    
+    let amountt = parseInt(value)+parseInt(amount)
+    if(amountt>=500){
+
+      var value = $('#ApplywalletAmount').text(amountt)
+    }
+  }
+</script>
+<script>
+function applyWalletAmount() {
+  var value = $('#ApplywalletAmount').text();
+ 
+
+      $.ajax({
+          type: 'POST',
+          url: '/applayWalletAmount', // Replace with your backend endpoint
+          data: { amount: value },
+          success: function(res) {
+            if(res.success){
+              
+              $('.contentToReload-discount').html('-₹'+res.cartPricing.subtotal);
+              $('.contentToReload-total').html('₹'+res.cartPricing.totaldiscount);
+              $('#walletAmount').html(res.walletAmount); // Update wallet amount on the page
+
+
+              var walletDetails = $("<div>", { class: "coupon-details row mt-2" })
+    .append($("<div>", { class: "col" }).append($("<span>", { class: "coupon-code text-danger", id:'appliedWalletAmount', text: -res.amount  })))
+    .append($("<div>", { class: "col-auto" }).append($("<button>", { class: "btn btn-danger btn-sm remove-coupon-btn", id:"removeWalletAmount" }).html('<i class="fa-solid fa-minus" style="color: #ffffff;"></i>')));
+
+$('#WalletDetailsContainer').append(walletDetails);
+$('#applayWalletAmount').prop('disabled', true);
+
+            }else{
+              Toastify({
+          text: res.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(212, 17, 17)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+            }
+          },
+          error: function(xhr, status, error) {
+            // Handle error
+            console.error(xhr.responseText);
+          }
+        });
+    }
+
+    $(document).on('click', '#removeWalletAmount', function() {
+    const amount = $('#appliedWalletAmount').text()
+    let value = amount.replace("-","")
+    
+    $.ajax({
+      url:'/removerAppliedWalletAmount',
+      method:'POST',
+      data:{amount:value},
+      success:function(res){
+        if(res.success){
+              
+              $('.contentToReload-discount').html('-₹'+res.cartPricing.subtotal);
+              $('.contentToReload-total').html('₹'+res.cartPricing.totaldiscount);
+              $('#walletAmount').html(res.walletAmount); // Update wallet amount on the page
+              $('#WalletDetailsContainer').empty();
+              $('#applayWalletAmount').prop('disabled', false);
+
+        }
+
+      },
+      error: function(err){
+        console.log(err)
+      }
+    })
+    
+});
+
+
+
+
+
+function copyCouponCode(couponCode) {
+    // Create a temporary textarea element
+    var textarea = document.createElement('textarea');
+
+    // Set the coupon code as the value of the textarea
+    textarea.value = couponCode;
+
+    // Append the textarea to the document body
+    document.body.appendChild(textarea);
+
+    // Select the textarea content
+    textarea.select();
+
+    try {
+        // Use the Clipboard API to copy the text to the clipboard
+        navigator.clipboard.writeText(couponCode)
+            .then(function() {
+              Toastify({
+          text: 'Coupon Copied',
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(199, 20, 20)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+            })
+            .catch(function(error) {
+                console.error('Failed to copy coupon code:', error);
+            });
+    } catch (error) {
+        console.error('Failed to copy coupon code:', error);
+    } finally {
+        // Remove the textarea from the document body
+        document.body.removeChild(textarea);
+    }
+}
+
+
+
+
+$(document).ready(function() {
+  $('#couponForm').submit(function(event) {
+    // Prevent the default form submission
+    event.preventDefault();
+    
+    // Get the form data
+    var formData = $(this).serialize();
+    
+    // Send the AJAX request
+    $.ajax({
+      type: 'POST',
+      url: '/applyCouponCode', // Replace 'your_backend_url_here' with the actual backend URL
+      data: formData,
+      success: function(response) {
+        if(response.appied){
+          Toastify({
+          text: 'Coupon Already applied',
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(199, 20, 20)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+      return
+        }
+        if(response.couponApplied){
+          Toastify({
+          text: response.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(199, 20, 20)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+          $('.contentToReload-total').html('₹'+response.totaldiscount);
+          $('#couponDiscount').html('-₹'+response.coupondiscount )
+
+          var couponDetails = $("<div>", { class: "coupon-details row mt-2" })
+    .append($("<div>", { class: "col" }).append($("<span>", { class: "coupon-code text-success", text: response.couponcode })))
+    .append($("<div>", { class: "col" }).append($("<span>", { class: "text-danger", text: " -₹" + response.coupondiscount })))
+    .append($("<div>", { class: "col-auto" }).append($("<button>", { class: "btn btn-danger btn-sm remove-coupon-btn" }).html('<i class="fa-solid fa-minus" style="color: #ffffff;"></i>')));
+
+$('#couponDetailsContainer').append(couponDetails);
+
+          
+        
+          return 
+        }
+       if(response.exist && response.expired ){
+        Toastify({
+          text: response.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(199, 20, 20)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+       }else{
+        Toastify({
+          text: response.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(199, 20, 20)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+       }
+      },
+      error: function(xhr, status, error) {
+        // Handle the error here
+        console.error('Error submitting form:', error);
+      }
+    });
+  });
+});
+
+// Function to fetch and display available coupons
+function showAvailableCoupons() {
+    $.ajax({
+        url: '/availableCoupon', // Update the URL to match your backend endpoint
+        method: 'GET',
+        success: function(response) {
+          console.log(response)
+            // Check if there are available coupons
+            if (response.coupons.length > 0) {
+              $('#availablecoupon .modal-body').empty();
+
+// Loop through the response data and append HTML for each coupon
+response.coupons.forEach(coupon => {
+  let couponHTML = `
+                        <article class="custom-card fl-left">
+                            <section class="custom-date">
+                                <label for="">Expires On:</label>
+                                <time datetime="${coupon.expiryDate}" class="custom-time">
+                                    ${new Date(coupon.expiryDate).toLocaleDateString()}
+                                </time>
+                            </section>
+                            <section class="custom-card-cont">
+                                <div class="d-flex justify-content-start">
+                                    <h3 class="mt-2 text-success">Coupon Code:</h3>
+                                    <h3 class="mt-2 coupon-code" style="cursor: pointer; color: blue; text-decoration: underline;" onclick="copyCouponCode(this.textContent.trim())"> ${coupon.couponCode} </h3>
+                                    </div>
+                                    <i class="fa-solid fa-percent" style="color: #000000;"></i><span class="mx-1 text-primary">Discount up to :</span><span class="text-dark">${coupon.discountPercentage} %</span>
+                                <div class="even-date">
+                                    <i class="fa-solid fa-money-bill" style="color: #000000;"></i><span class="mx-1 text-primary">Minimum Purchase Amount:</span><span class="text-dark">${coupon.minPurchaseAmount}</span>
+                                </div>
+                                <div class="even-info">
+                                    <i class="fa-solid fa-money-bill" style="color: #000000;"></i><span class="mx-1 text-primary">Maximum Discount Amount:</span><span class="text-dark">${coupon.discountAmount}</span>
+                                    <div class="mt-2" style="left: -2px !important;">
+                                        <span class="text-dark"><i class="fa-solid fa-clipboard" style="color: #000000;"></i>Description:</span>
+                                        <span>${coupon.description}</span>
+                                    </div>
+                                </div>                       
+                            </section>
+                        </article>
+                    `;
+                    $('#availablecoupon .modal-body').append(couponHTML);
+});
+
+// Show the modal
+$('#availablecoupon').modal('show');
+            } else {
+              Toastify({
+          text: 'No Coupons Available',
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(28, 127, 189)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+            }
+        },
+        error: function(error) {
+            console.error('Error fetching coupons:', error);
+        }
+    });
+}
+
+// Event listener for the button to show available coupons
+$(document).ready(function() {
+    $('#showCouponsBtn').click(function() {
+        showAvailableCoupons();
+    });
+});
+
+
+
+
+$('#couponDetailsContainer').on('click', '.remove-coupon-btn', function() {
+  console.log("here i  ain htal")
+  var couponCode = $(this).closest('.coupon-details').find('.coupon-code').text();
+    // Send AJAX POST request to server with the coupon code
+    $.ajax({
+        type: 'POST',
+        url: '/removeCoupon', // Replace with the actual server endpoint
+        data: { couponCode: couponCode },
+        success: function(response) {
+            // Check if the coupon was successfully removed
+            if (response.couponremoved) {
+              $('.contentToReload-total').html('₹'+response.totaldiscount);
+          $('#couponDiscount').html('-₹'+response.coupondiscount )
+                // Remove the coupon details div
+                $('#couponDetailsContainer').empty();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error removing coupon:', error);
+        }
+    });
+});
+
+
+
+
+
+</script>
+<script src="../../js/checkOutAjax.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<%- include('../layouts/userFooter') %>

@@ -1,0 +1,465 @@
+<%- include('../layouts/userHeader'); %>
+<link rel="stylesheet" href="/css/user/productlist.css">
+<!-- sidebar + content -->
+<section class="mt-2">
+  <div class="mx-3">
+    <div class="row">
+      <!-- sidebar -->
+      <div class="col-lg-3">  
+        <!-- Collapsible wrapper -->
+        <div class="collapse card d-lg-block mb-5" id="navbarSupportedContent">
+          <form action="" id="filterForm" method="post">
+          <div class="accordion" id="accordionPanelsStayOpenExample">
+            <div class="accordion-item">
+                <h5 class="text-center mt-3" style="color: dimgrey;">Categories</h5>
+              <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne">
+                <div class="accordion-body">
+                  <% categories.forEach(category=>{%>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="categories" value="<%- category._id %>" id="flexCheckChecked1" />
+                      <label class="form-check-label" for="flexCheckChecked1"><%= category.Name %></label>
+                    </div>
+                   <%})%>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h5 class="text-center mt-3" style="color: dimgrey;">Brands</h5>
+              <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo">
+                <div class="accordion-body">
+                  <% brands.forEach(brand=>{%>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="brands" value="<%- brand._id %>" id="flexCheckChecked2" />
+                      <label class="form-check-label" for="flexCheckChecked1"><%= brand.Name %></label>
+                    </div>
+                   <%})%>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h5 class="text-center mt-3" style="color: dimgrey;">Price</h5>
+              <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree">
+                  <div class="accordion-body">
+                      <div class="range">
+                          <input type="range" class="form-range" id="customRange1" />
+                          <p id="priceValue" class="mt-2">Price: $0</p>
+                      </div>
+                      <div class="row mb-3">
+                          <div class="col-6">
+                              <p class="mb-0">
+                                  Min
+                              </p>
+                              <div class="form-outline">
+                                  <input type="number" id="minPrice" name="minPrice" class="form-control" value="0" />
+                              </div>
+                          </div>
+                          <div class="col-6">
+                              <p class="mb-0">
+                                  Max
+                              </p>
+                              <div class="form-outline">
+                                  <input type="number" id="maxPrice" name="maxPrice" class="form-control" value="" />
+                              </div>
+                          </div>
+                      </div>
+                      
+                  </div>
+              </div>
+          </div>
+          </div>
+          <button type="submit" class="btn btn-white w-100 border border-secondary mt-2">apply</button>
+        </form>
+        </div>
+      </div>
+      <!-- sidebar -->
+      <!-- content -->
+      <div class="col-lg-9">
+
+        <div class="d-sm-flex align-items-center border-bottom mb-4 pb-3">
+          <strong class="d-block py-2" id="product-count"><%= data.length %> Items found </strong>
+          <div class="ms-auto">
+            <select id="sortSelect" class="form-select d-inline-block w-auto border pt-1">
+              <option value="" disabled selected>Sort</option>
+              <option value="1">Price: Low - High</option>
+              <option value="2">Price: High - Low</option>
+              <option value="3">A - Z</option>
+              <option value="4">Z - A</option>
+            </select>
+            
+          </div>
+        </div>
+
+       
+
+       
+
+          <div class="container">
+            <div class="row data" id="products">
+              <% for(data of data){ %>
+                <div class="col-md-3 col-sm-6">
+                    <div class="product-grid">
+                        <div class="product-image">
+                            <a href="/productView/<%- data._id %>">
+                              <img src="/uploads/<%= data.images[0] %>" class="w-100" />
+                            </a>
+                            <% if(data.offer){ %><span class="product-discount-label">-20%</span> <% } %>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="title">
+                                <a><%= data.brand.Name  %></a>
+                            </h3>
+                            <h4 class="title">
+                                <a><%= data.productName %></a>
+                            </h4>
+                            <div class="price">₹<%=data.discountPrice  %>
+                                <span>₹<%= data.price  %></span>
+                            </div>
+                            <% if(data.stock<=0){%> <span class="text-danger">Stock Out</span> <%}%>
+                        </div>
+                        <ul class="social">
+                            <li><a href="/productView/<%- data._id %>" data-tip="Quick View"><i class="fa fa-eye"></i></a></li>
+                            <li><% if(wishlist.includes(data._id.toString())){ %><a data-tip="Wishlist" onclick="addToWaishlist('<%- data._id %>')"><i class="fa fa-heart text-danger"></i>
+                            </a> <% }else{%> <a data-tip="Wishlist" onclick="addToWaishlist('<%- data._id %>')"><i class="fa fa-heart"></i></a> <%} %></li>
+                            <li><a  onclick="addToCart('<%- data._id %>')" ><i class="fa fa-shopping-cart"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        </div>
+
+       
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example" class="d-flex justify-content-center mt-3">
+          <ul class="pagination">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item "><a class="page-link" href="/productList/<%= i %>"><%= i %></a></li>
+            <% } %>
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <!-- Pagination -->
+      </div>
+    </div>
+  </div>
+</section>
+<%- include('../layouts/userFooter') %>
+
+
+ 
+<script>
+  $(document).ready(function() {
+  // Add submit event listener to the form
+  $('#filterForm').submit(function(event) {
+    // Prevent the default form submission
+    event.preventDefault();
+
+    // Serialize the form data
+    var formData = $(this).serialize();
+
+    // Send an AJAX request
+    $.ajax({
+      url: '/filterProduct',
+      method: 'POST',
+      data: formData,
+      success: function(res) {
+         // Clear existing product data
+         $('.data').empty();
+         $('#product-count').text(res.data.length + ' Items found');
+
+// Check if response contains data
+if (res && res.data.length > 0) {
+  // Iterate through the sorted product data and append it to the HTML
+  res.data.forEach(product => {
+    let productHtml = `
+      <div class="col-md-3 col-sm-6">
+        <div class="product-grid">
+          <div class="product-image">
+            <a href="/productView/${product._id}">
+              <img src="/uploads/${product.images[0]}" class="w-100" />
+            </a>
+            ${product.offer ? '<span class="product-discount-label">-20%</span>' : ''}
+          </div>
+          <div class="product-content">
+            <h3 class="title">
+              <a>${product.brand.Name}</a>
+            </h3>
+            <h4 class="title">
+              <a>${product.productName}</a>
+            </h4>
+            <div class="price">₹${product.discountPrice}
+              <span>₹${product.price}</span>
+            </div>
+          </div>
+          <ul class="social">
+            <li><a href="/productView/${product._id}" data-tip="Quick View"><i class="fa fa-eye"></i></a></li>
+            <li><a data-tip="Wishlist" onclick="addToWaishlist('${product._id}')"><i class="fa fa-heart"></i></a></li>
+            <li><a onclick="addToCart('${product._id}')"><i class="fa fa-shopping-cart"></i></a></li>
+          </ul>
+        </div>
+      </div>`;
+
+    // Append product HTML to the container
+    $('.data').append(productHtml);
+  });
+} else {
+  // If no data is returned, display a message or handle accordingly
+  $('.data').html('<p>No products found.</p>');
+}
+      },
+      error: function(xhr, status, error) {
+        // Handle error response
+        console.error(error);
+      }
+    });
+  });
+});
+
+</script>
+
+<script>
+  $(document).ready(function() {
+  // Add change event listener to the select element
+  $('#sortSelect').change(function() {
+    // Get the selected value
+    var selectedValue = $(this).val();
+   
+    // Create an object to store form data
+    var formDataObject = {};
+
+    // Serialize the form data as an array
+    var formDataArray = $('#filterForm').serializeArray();
+
+    // Iterate through the form data array
+    formDataArray.forEach(function(item) {
+      // Check if the field already exists in the formDataObject
+      if (formDataObject[item.name] !== undefined) {
+        // If the field already exists and it's not an array, convert it to an array
+        if (!Array.isArray(formDataObject[item.name])) {
+          formDataObject[item.name] = [formDataObject[item.name]];
+        }
+        // Push the new value to the array
+        formDataObject[item.name].push(item.value);
+      } else {
+        // If the field doesn't exist yet, set its value in the formDataObject
+        formDataObject[item.name] = item.value;
+      }
+    });
+
+
+    // Send an AJAX request
+    $.ajax({
+      url: '/sortProduct', // Replace with your actual endpoint URL
+      method: 'POST',
+      data: { value: selectedValue , filter:formDataObject}, // Send selected value as data
+      success: function(res) {
+        $('.data').empty();
+        $('#product-count').text(res.data.length + ' Items found');
+
+// Check if response contains data
+if (res && res.data.length > 0) {
+  // Iterate through the sorted product data and append it to the HTML
+  res.data.forEach(product => {
+    let productHtml = `
+      <div class="col-md-3 col-sm-6">
+        <div class="product-grid">
+          <div class="product-image">
+            <a href="/productView/${product._id}">
+              <img src="/uploads/${product.images[0]}" class="w-100" />
+            </a>
+            ${product.offer ? '<span class="product-discount-label">-20%</span>' : ''}
+          </div>
+          <div class="product-content">
+            <h3 class="title">
+              <a>${product.brand.Name}</a>
+            </h3>
+            <h4 class="title">
+              <a>${product.productName}</a>
+            </h4>
+            <div class="price">₹${product.discountPrice}
+              <span>₹${product.price}</span>
+            </div>
+          </div>
+          <ul class="social">
+            <li><a href="/productView/${product._id}" data-tip="Quick View"><i class="fa fa-eye"></i></a></li>
+            <li><a data-tip="Wishlist" onclick="addToWaishlist('${product._id}')"><i class="fa fa-heart"></i></a></li>
+            <li><a onclick="addToCart('${product._id}')"><i class="fa fa-shopping-cart"></i></a></li>
+          </ul>
+        </div>
+      </div>`;
+
+    // Append product HTML to the container
+    $('.data').append(productHtml);
+  });
+} else {
+  // If no data is returned, display a message or handle accordingly
+  $('.data').html('<p>No products found.</p>');
+}
+      },
+      error: function(xhr, status, error) {
+        // Handle error response
+        console.error(error);
+      }
+    });
+  });
+});
+
+</script>
+
+<script>
+  // Get all page links
+  const pageLinks = document.querySelectorAll('.page-link');
+
+  // Check if there's a selected page number in localStorage
+  const selectedPage = localStorage.getItem('selectedPage');
+
+  // If there's a selected page number, set the active class
+  if (selectedPage) {
+    pageLinks.forEach(link => {
+      if (link.textContent === selectedPage) {
+        link.parentNode.classList.add('active');
+      }
+    });
+  }
+
+  // Loop through each page link
+  pageLinks.forEach(link => {
+    // Add a click event listener
+    link.addEventListener('click', function(event) {
+      // Remove the 'active' class from all page items
+      pageLinks.forEach(link => {
+        link.parentNode.classList.remove('active');
+      });
+
+      // Add the 'active' class to the clicked page item
+      this.parentNode.classList.add('active');
+
+      // Store the selected page number in localStorage
+      localStorage.setItem('selectedPage', this.textContent);
+    });
+  });
+</script>
+
+
+
+<script>
+
+  function addToCart(productId) {
+    let cartCountSpan = document.getElementById('cartCount');
+    let currentCount = parseInt(cartCountSpan.textContent);
+    $.ajax({
+        url: `/addtocart/${productId}`,
+        method: 'GET',
+        success: function(res) {
+            if (res.user && res.response) {
+                Toastify({
+                    text: res.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+                if(!res.exist){
+                    cartCountSpan.textContent = currentCount+1
+                  }
+            } else if(res.user && !res.response){
+                Toastify({
+                    text: res.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+            }else{
+              Toastify({
+                    text: 'Plese login',
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+            }
+            // Show toast notification
+
+            // Optional: You can redirect the user to the cart page after adding the item
+            // window.location.href = "/cart";
+        },
+        error: function(error) {
+            // Show toast notification for error, if needed
+            toastr.error('Failed to add item to cart');
+        }
+    });
+  }
+
+
+function addToWaishlist(productid){
+
+  const heartIcon = event.target.querySelector('i.fa-heart');
+    if (heartIcon) {
+        heartIcon.classList.toggle('text-danger');
+    }
+ 
+    let wishlistCountSpan = document.getElementById('wishlistCount');
+    let currentCount = parseInt(wishlistCountSpan.textContent);
+      $.ajax({
+        url:'/addtoWishlist',
+        data:{
+          productid:productid
+        },
+        method:'POST',
+        success: function(response){
+          if(!response.exist){
+            wishlistCountSpan.textContent = currentCount+1
+          }
+          Toastify({
+                      text: response.msg,
+                      duration: 800,
+                      close: false,
+                      gravity: "bottom",
+                      position: 'center',
+                      style: {
+                          background: "rgba(169, 23, 148)", // Set the background color with opacity
+                          color: "#fff",
+                          borderRadius: "15px",
+                      }
+                  }).showToast();
+        },
+        error: function(err){
+          alert(err)
+        }
+      })
+
+  }
+</script>
+
+<!-- <script src="/js/cartAjax.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+</html>

@@ -1,0 +1,290 @@
+<link rel="stylesheet" href="../../css/user/userProfile.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<div class="container mt-5"> 
+    <div class="row">  
+        <div class="col-md-4">      
+            <div class="portlet light profile-sidebar-portlet bordered">
+                <!-- <div class="profile-userpic">
+                    <img src="https://bootdey.com/img/Content/avatar/avatar6.png" class="img-responsive" alt=""> 
+                </div> -->
+                <div class="profile-usertitle">
+                    <div class="profile-usertitle-name"> <%= userdata.Name %> </div>
+                </div>
+                <div class="profile-usermenu">
+                    <ul role="tablist" style="list-style: none;line-height: 300%;">
+                        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab" style="text-decoration: none;" >Account</a></li>
+                        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"style="text-decoration: none;" >Password</a></li>
+                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"style="text-decoration: none;">Manage Address</a></li>
+                        <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab" style="text-decoration: none;">Available Coupons</a></li>
+                        <li role="presentation"><a href="#referal" aria-controls="settings" role="tab" data-toggle="tab" style="text-decoration: none;">Refer & Earn</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8"> 
+            <div class="portlet light bordered">
+                <div class="portlet-title tabbable-line">
+                    <div class="caption caption-md">
+                        <i class="icon-globe theme-font hide"></i>
+                        <span class="caption-subject font-blue-madison bold uppercase">Your info</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div>
+                        <!-- -------edit Name---------- -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="home">
+                                <form>
+                                  <div class="form-group m-2">
+                                    <!-- <label for="inputName">Name</label>
+                                    <input type="text" class="form-control" id="inputName" placeholder="<%= userdata.Name %>" disabled> -->
+                                    <label for="inputName" class="form-label">Name:</label>
+                                    <input type="text" class="form-control" id="inputName" placeholder="<%= userdata.Name %>" oninput="validateinputName()" disabled>
+                                    <div class="invalid-feedback" id="nameError"></div>
+                                  </div>
+                                  <div class="form-group m-2">
+                                    <label for="exampleInputEmail1">Email address</label>
+                                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="<%= userdata.Email %>" disabled>
+                                  </div>
+                                  <button type="button" class="btn btn-info edit-button ms-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button type="submit" class="btn btn-default save-button btn-success ms-2" style="display: none;"><i class="fa-solid fa-floppy-disk"></i></button>
+                                </form>
+                            </div>
+                            <!-- ----------------end edit name------------------ -->
+
+                            <!-- ----------------change password---------------------- -->
+                            <div role="tabpanel" class="tab-pane" id="profile">
+                                <form>
+                                    <div class="form-group">
+                                      <label for="inputName">Password</label>
+                                      <input type="password" class="form-control" name="Password"  id="password" required oninput="validateExistingPassword()">
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="exampleInputEmail1">New Password</label>
+                                      <input type="password" class="form-control" name="Password"  id="new-password" required oninput="validatePassword()">
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="exampleInputEmail1">Confirm New Password</label>
+                                      <input type="password" class="form-control" name="ConfirmPassword" id="repeat-password" required oninput="validateRepeatPassword()">
+                                    </div>
+                                     <div >
+                                        <span id="error" class="text-warning"></span>
+                                     </div>
+                                  <button type="submit" class="btn btn-default btn-success update-password"><i class="fa-solid fa-floppy-disk"></i></button>
+                                  </form>
+                            </div>
+                            <!-- ----------------------------end change password---------------------- -->
+
+                            <!-- .................................Address...................................... -->
+                            <div role="tabpanel" class="tab-pane" id="messages">
+                                <div><button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                    Add Address
+                                  </button></div>
+                                <% userdata.Address.forEach(function(address, index) { %>
+                                    <div class="shadow p-3">
+                                        
+                                        <!-- Display address details -->
+                                        <p><strong>Name:</strong> <%= address.name %></p>
+                                        <p><strong>Address Lane:</strong> <%= address.addressLane %></p>
+                                        <p><strong>City:</strong> <%= address.city %></p>
+                                        <p><strong>Pincode:</strong> <%= address.pincode %></p>
+                                        <p><strong>State:</strong> <%= address.state %></p>
+                                        <p><strong>Mobile:</strong> <%= address.mobile %></p>
+                                        <div>
+                                            <button class="btn btn-primary btn-sm edit-address-btn" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-index="<%= index %>" onclick="editAddress('<%= JSON.stringify(userdata) %>', '<%= index %>')"><i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button>
+
+                                            <button class="btn btn-danger btn-sm" onclick="deleteAddress('<%= userdata._id %>', '<%= index %>')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                            <!-- .......................................end address........................................ -->
+                            <div role="tabpanel" class="tab-pane" id="settings">Settings</div>
+                            <div role="tabpanel" class="tab-pane" id="referal">ref</div>
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Add Address modal -->
+    <div class="modal fade " id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Address</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-2">
+              <form id="addressForm">
+                <div class="mb-1">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" oninput="validateName()">
+                    <div class="invalid-feedback" id="nameError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="addressLane" class="form-label">Address Lane:</label>
+                    <input type="text" class="form-control" id="addressLane" name="addressLane" oninput="validateAddressLane()">
+                    <div class="invalid-feedback" id="addressLaneError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="locality" class="form-label">Locality:</label>
+                    <input type="text" class="form-control" id="locality" name="locality" oninput="validateLocality()">
+                    <div class="invalid-feedback" id="localityError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="city" class="form-label">City:</label>
+                    <input type="text" class="form-control" id="city" name="city" oninput="validateCity()">
+                    <div class="invalid-feedback" id="cityError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="district" class="form-label">District:</label>
+                    <input type="text" class="form-control" id="district" name="district" oninput="validateDistrict()">
+                    <div class="invalid-feedback" id="districtError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="state" class="form-label">State:</label>
+                    <input type="text" class="form-control" id="state" name="state" oninput="validateState()">
+                    <div class="invalid-feedback" id="stateError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="pincode" class="form-label">Pincode:</label>
+                    <input type="number" class="form-control" id="pincode" name="pincode" oninput="validatePincode()">
+                    <div class="invalid-feedback" id="pincodeError"></div>
+                </div>
+                <div class="mb-1">
+                    <label for="mobile" class="form-label">Mobile:</label>
+                    <input type="text" class="form-control" id="mobile" name="mobile" oninput="validateMobile()">
+                    <div class="invalid-feedback" id="mobileError"></div>
+                </div>
+                <button type="submit" class="btn btn-primary addadress-btn">Submit</button>
+            </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  <!-- End Add Address modal -->
+
+  <!-- ...............edit address modal................. -->
+  <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-2">
+                <form id="editAddressForm">
+                    <input type="hidden" id="editAddressId" name="adddressId">
+                    <div class="mb-1">
+                        <label for="editName" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="editName" name="name" oninput="editvalidateName()">
+                        <div class="invalid-feedback" id="editnameError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editAddressLane" class="form-label">Address Lane:</label>
+                        <input type="text" class="form-control" id="editAddressLane" name="addressLane" oninput="editvalidateAddressLane()">
+                        <div class="invalid-feedback" id="editaddressLaneError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editLocality" class="form-label">Locality:</label>
+                        <input type="text" class="form-control" id="editLocality" name="locality" oninput="editvalidateLocality()">
+                        <div class="invalid-feedback" id="editlocalityError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editCity" class="form-label">City:</label>
+                        <input type="text" class="form-control" id="editCity" name="city" oninput="editvalidateCity()">
+                        <div class="invalid-feedback" id="editcityError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editDistrict" class="form-label">District:</label>
+                        <input type="text" class="form-control" id="editDistrict" name="district" oninput="editvalidateDistrict()">
+                        <div class="invalid-feedback" id="editdistrictError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editState" class="form-label">State:</label>
+                        <input type="text" class="form-control" id="editState" name="state" oninput="editvalidateState()">
+                        <div class="invalid-feedback" id="editstateError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editPincode" class="form-label">Pincode:</label>
+                        <input type="number" class="form-control" id="editPincode" name="pincode" oninput="editvalidatePincode()">
+                        <div class="invalid-feedback" id="editpincodeError"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label for="editMobile" class="form-label">Mobile:</label>
+                        <input type="text" class="form-control" id="editMobile" name="mobile" oninput="editvalidateMobile()">
+                        <div class="invalid-feedback" id="editmobileError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveEditedAddress" onclick="postEditAddress()">Save changes</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+  <!-- ...............end edit address modal................. -->
+
+  <script>
+  // Function to populate edit address modal with appropriate address values
+// Function to populate edit address modal with appropriate address values
+function editAddress(userDataString, index) {
+    var userData = JSON.parse(userDataString); // Convert JSON string back to an object
+    var address = userData.Address[index];
+    // Now you can use `userData` and `index` as needed in your function
+    // For example, populate the modal with the address details
+    $('#editAddressId').val(address._id)
+    $('#editName').val(address.name);
+    $('#editAddressLane').val(address.addressLane);
+    $('#editCity').val(address.city);
+    $('#editPincode').val(address.pincode);
+    $('#editState').val(address.state);
+    $('#editMobile').val(address.mobile);
+    $('#editLocality').val(address.locality)
+    $('#editDistrict').val(address.district)
+    $('#editAddressModal').modal('show');
+}
+
+function postEditAddress(){
+    var formData = $('#editAddressForm').serialize()
+    $.ajax({
+            type: 'POST',
+            url: '/editAddress', // Replace with your API endpoint URL
+            data: formData,
+            success: function(response) {
+                // Handle success response
+                Toastify({
+              text: response.msg,
+              duration: 1000,
+              close: false,
+              gravity: "bottom",
+              position: 'center',
+              style: {
+                background: "rgba(147, 250, 165)", // Set the background color with opacity
+                color: "#fff",
+                borderRadius: "15px",
+              }
+            }).showToast();
+                // Optionally, close the modal or perform other actions
+                $('#editAddressModal').modal('hide');
+
+                $("#messages").load(location.href + " #messages");
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error editing address:', error);
+                // Optionally, display an error message to the user
+            }
+        });
+}
+  </script>
+
+<script src="../../js/profilePageAjax.js"></script>

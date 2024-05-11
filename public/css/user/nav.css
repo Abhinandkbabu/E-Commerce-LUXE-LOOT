@@ -1,0 +1,153 @@
+.left{
+	color: black;
+	font-weight: 500;
+	font-size: x-large;
+   }
+   .middle{
+	color: black;
+	font-weight: 300;
+	font-size: xx-large;
+   }
+   .letter{
+	margin-left: -1.5px;
+	font-weight: 400;
+   }
+
+body {
+	font-family: Cursive;
+}
+
+header {
+	position: sticky;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background-color: white;
+	box-shadow: 0px 0px 20px #0003;
+  	z-index: 3;
+}
+
+nav {
+	position: relative;
+	display: flex;
+	justify-content: space-between; /* Align logo and navigation menu */
+	align-items: center;
+}
+
+.logo {
+	margin-left: 20px; /* Adjust margin as needed */
+}
+
+.navigation-menu {
+	display: flex;
+	align-items: center;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.navigation-menu li {
+	position: relative;
+}
+
+.navigation-menu li a {
+	position: relative;
+	display: block;
+	color: black;
+	text-decoration: none;
+	padding: 1rem 2rem;
+	text-wrap: nowrap;
+}
+
+.navigation-menu li.extends a::after {
+	content: ">";
+	display: inline-block;
+	transform: rotate(90deg);
+	margin-left: .5rem;
+	padding-bottom: 3px;
+	vertical-align: middle;
+	font-size: 10px;
+}
+
+.navigation-menu li:not(.extends) a::after {
+	content: "";
+}
+
+.navigation-menu ul {
+	position: absolute;
+	top: 100%;
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	list-style: none;
+	background-color: white;
+	box-shadow: 0px 0px 20px #0003;
+}
+
+.navigation-menu ul li {
+	position: unset;
+}
+
+.navigation-menu ul li a::after {
+	transform: rotate(0deg) !important;
+}
+
+.navigation-menu ul ul {
+	left: 100%;
+	top: 0;
+	min-height: 100%;
+}
+
+.navigation-menu li:hover {
+	background-color: #eee;
+}
+
+.navigation-menu li:not(:hover) ul {
+	display: none;
+}
+
+.search-form {
+	position: relative;
+	width: 350px;
+	height: 40px;
+	border-radius: 40px;
+	box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+	background: #fff;
+	transition: all 0.3s ease;
+}
+
+.search-input {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 14px;
+	background: none;
+	color: #5a6674;
+	width: 260px;
+	height: 20px;
+	border: none;
+	appearance: none;
+	outline: none;
+}
+
+.search-button {
+	position: absolute;
+	top: 50%;
+	left: 10px;
+	transform: translateY(-50%);
+	height: 20px;
+	width: 20px;
+	padding: 0;
+	margin: 0;
+	border: none;
+	background: none;
+	outline: none!important;
+	cursor: pointer;
+}
+
+.search-button svg {
+	width: 20px;
+	height: 20px;
+	fill: #5a6674;
+}

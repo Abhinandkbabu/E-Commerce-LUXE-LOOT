@@ -1,0 +1,398 @@
+<%- include('../layouts/adminHeader'); %>  
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+    .nav-pills {
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+.nav-pills .nav-item {
+    cursor: pointer;
+    padding: 0px 10px;
+}
+
+.nav-underline .nav-item.active:after {
+    content: '';
+    display: block;
+    height: 2px;
+    background-color: blue;
+}
+
+</style>
+  <main>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Dashboard</h5>
+      <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#salesReportModal">
+          <i class="fa-solid fa-download"></i> Sales Report
+      </a>
+    </div>
+  
+<!-- -----------total sales count card ----------------------------------------- -->
+ 
+<div class="row g-6 mb-6">
+  <div class="col-xl-3 col-sm-6 col-12">
+      <div class="card shadow border-0">
+          <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                      <span class="h6 font-semibold text-muted text-sm d-block mb-2">Customers</span>
+                      <span class="h3 font-bold mb-0"><i class="bi bi-people"></i> <%= customers %></span>
+                  </div>
+                  
+              </div>
+              <div class="mt-2 mb-0 text-sm">
+                  <span class="badge badge-pill bg-soft-success text-success me-2">
+                    <i class="bi bi-people"></i> <%= previousMonthCustomer %>
+                  </span>
+                  <span class="text-nowrap text-xs text-muted"> From last month</span>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+      <div class="card shadow border-0">
+          <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                      <span class="h6 font-semibold text-muted text-sm d-block mb-2">Revenue</span>
+                      <span class="h3 font-bold mb-0"><i class="bi bi-cash"></i> <%= totalRevenue %></span>
+                  </div>
+                 
+              </div>
+              <div class="mt-2 mb-0 text-sm">
+                  <span class="badge badge-pill bg-soft-success text-success me-2">
+                      <!-- <i class="bi bi-arrow-up me-1"></i>&nbsp; -->
+                  </span>
+                  <span class="text-nowrap text-xs text-muted"> &nbsp;</span>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+      <div class="card shadow border-0">
+          <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                      <span class="h6 font-semibold text-muted text-sm d-block mb-2">Total Sales</span>
+                      <span class="h3 font-bold mb-0"><i class="fa-solid fa-cart-shopping"></i> <%= totalSales %></span>
+                  </div>
+                  
+              </div>
+              <div class="mt-2 mb-0 text-sm">
+                  <span class="badge badge-pill bg-soft-danger text-danger me-2">
+                      <!-- <i class="bi bi-arrow-down me-1"></i>&nbsp; -->
+                  </span>
+                  <span class="text-nowrap text-xs text-muted">&nbsp;</span>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+      <div class="card shadow border-0">
+          <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                      <span class="h6 font-semibold text-muted text-sm d-block mb-1">Top Selling</span>
+                      <hr>
+                  </div>
+                 
+              </div>
+              <div class=" mb-0 text-sm">
+                  <span class="text-nowrap text-xs  mb-2" style="color: #af5302;">Category : </span><span><%= bestcategory %> (<%= categoryCount %>)</span><br>
+                  <span class="text-nowrap text-xs " style="color: #af9b02;">Brand : </span><span><%= bestbrand %> (<%= brandCount %>s)</span>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- ----------------line Chart-------------------------------- -->
+<div class="col-lg-12 mt-3 bg-light p-4 rounded-3" >
+    <div class="row">
+        <div class="col-lg-6">
+            <h6>SALES REPORT (SALES/ORDER)</h6>
+        </div>
+        <div class="col-lg-6 d-flex justify-content-end ">
+            <ul class="nav nav-pills nav-underline">
+                <li class="nav-item active" onclick="getChart(this,'/admin/count-orders-by-day')">Today</li>
+                <li class="nav-item" onclick="getChart(this,'/admin/count-orders-by-month')">Month</li>
+                <li class="nav-item" onclick="getChart(this,'/admin/count-orders-by-year')">Year</li>
+            </ul>
+                        
+        </div>
+    </div>
+    
+    <HR></HR>
+    <div class="row">
+        <div class="col-lg-6 p-4">
+            <canvas id="pieChart"></canvas>
+        </div>
+        <div class="col-lg-6 p-4">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12 mt-3 bg-light p-4 rounded-3" >
+    <div class="row">
+        <div class="col-lg-6">
+            <h6>SALES REPORT (SALES/ORDER)</h6>
+        </div>
+        <div class="col-lg-6 d-flex justify-content-end ">
+            <ul class="nav nav-pills nav-underline">
+                <li class="nav-item active" id="activeli" onclick="getChart(this,'/admin/count-orders-by-day')">Today</li>
+                <li class="nav-item" onclick="getChart(this,'/admin/count-orders-by-month')">Month</li>
+                <li class="nav-item" onclick="getChart(this,'/admin/count-orders-by-year')">Year</li>
+            </ul>
+                        
+        </div>
+    </div>
+    
+    <HR></HR>
+    <canvas id="myLineChart">
+
+    </canvas>
+</div>
+<!-- ----------------------end line Chart----------------------------------- -->
+
+
+<div id="tables" class="mt-3 bg-light" style="border-radius: 10px; padding: 10px;">
+    <h6 style="color: #af5302;">RECENT SALES</h6>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Customer</th>
+            <th scope="col" class="text-center">Price</th>
+            <th scope="col" class="text-center">Orderid</th>
+            <th scope="col" class="text-center">Payment Staus</th>
+            <th scope="col" class="text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+            <% recentOrders.forEach((order,index)=>{ %>
+            <tr>
+                <td class="text-center">#<%= index+1 %></td>
+                <td class="text-center"><%= order.address.name %></td>
+                <td class="text-center"><%= order.subTotal %></td>
+                <td class="text-center"><a href="/admin/viewOrder/<%= order._id %>"><%= order._id %></a></td>
+                <td class="text-center"><% if(order.PaymentStatus=='Payment Successful'){%> <span class="badge text-bg-success" >Paid</span> <%}else{ %> <span class="badge text-bg-warning"><%= order.PaymentStatus %></span> <% } %></td>
+                <td class="text-center">
+                    <span class="stat badge <%= getOrderStatusBadgeClass(order.orderStatus) %>">
+                        <%= order.orderStatus %>
+                    </span>
+                    <% function getOrderStatusBadgeClass(orderStatus) {
+                        switch (orderStatus) {
+                            case 'Order Processing':
+                                return 'text-bg-info';
+                            case 'Order Confirmed':
+                                return 'text-bg-primary';
+                            case 'Order Shipped':
+                                return 'text-bg-warning';
+                            case 'Order Delivered':
+                                return 'text-bg-success';
+                            case 'Order Canceled':
+                                return 'text-bg-danger';
+                            case 'Canceled':
+                                return 'text-bg-danger';
+                            default:
+                                return 'text-bg-secondary';
+                        }
+                    } %>
+                </td>
+            </tr>
+           <% } )%>
+        </tbody>
+      </table>
+</div>
+
+<div id="tables" class="mt-3 bg-light" style="border-radius: 10px; padding: 10px;">
+    <h6 style="color: #af5302;">Top Selling</h6>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Preview</th>
+            <th scope="col" class="text-center">Product</th>
+            <th scope="col" class="text-center">Price</th>
+            <th scope="col" class="text-center">Sold</th>
+          </tr>
+        </thead>
+        <tbody>
+            <% topSelling.forEach((product,index)=>{ %>
+            <tr>
+                <td class="text-center">#<%= index+1 %></td>
+                <td class="text-center"><img width="50px" src="/uploads/<%= product.productDetails.images[0] %>" alt=""></td>
+                <td class="text-center"><%= product.productDetails.productName %> </td>
+                <td class="text-center"><%= product.productDetails.price %></td>
+                <td class="text-center"><%= product.totalQuantity %></td>
+            </tr>
+           <% } )%>
+        </tbody>
+      </table>
+</div>
+
+<!-- --------------------------------------sales report modal------------------------------------------ -->
+    <div class="modal fade" id="salesReportModal" tabindex="-1" aria-labelledby="salesReportModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+            <form id="salesReportForm" action="/admin/salesreport" method="post">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="salesReportModalLabel">Download Sales Report</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <!-- Radio buttons for selecting time range -->
+                  <span class=" text-primary">Select Default Date Range</span>
+                  <div class="mb-3 mt-2">
+                    
+                      <input type="radio" name="timeRange" id="previousWeek" value="previousWeek" onclick="setTimeRange(this.value)">
+                      <label for="previousWeek">Previous Week</label>
+          
+                      <input type="radio" name="timeRange" id="previousMonth" value="previousMonth" onclick="setTimeRange(this.value)">
+                      <label for="previousMonth">Previous Month</label>
+          
+                      <input type="radio" name="timeRange" id="previousYear" value="previousYear" onclick="setTimeRange(this.value)">
+                      <label for="previousYear">Previous Year</label>
+                  </div>
+                  <hr>
+                  <!-- Input fields for start date, end date, and download format -->
+                  <span class=" text-primary">Select Custom Date Range</span>
+                  <div class="mb-3 mt-2">
+                      <label for="startDate" class="form-label">Start Date</label>
+                      <input type="date" class="form-control" id="startDate" name="startdate" oninput="validateForm()">
+                      <small id="startDateError" class="text-danger"></small>
+                  </div>
+                  <div class="mb-3">
+                      <label for="endDate" class="form-label">End Date</label>
+                      <input type="date" class="form-control" id="endDate" name="enddate" oninput="validateForm()">
+                      <small id="endDateError" class="text-danger"></small>
+                  </div>
+                  <div class="mb-3">
+                      <label for="downloadFormat" class="form-label">Download Format</label>
+                      <select class="form-select" id="downloadFormat" name="downloadformat" oninput="validateForm()">
+                          <option value="">Select Format</option>
+                          <option value="pdf">PDF</option>
+                          <option value="excel">Excel</option>
+                      </select>
+                      <small id="downloadFormatError" class="text-danger"></small>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="generateReportBtn" disabled><i class="fa-solid fa-download" style="color: #ffffff;"></i> Generate Report</button>
+              </div>
+          </form>
+          </div>
+      </div>
+  </div>
+  </main>
+
+
+  <script>
+   
+   $(document).ready(function(){
+    const elem = document.getElementById('activeli')
+    getChart(elem,'/admin/count-orders-by-day')
+   })
+
+    function getChart(li, url) {
+    $('.nav-item').removeClass('active');
+    $(li).addClass('active');
+
+    const linechart = document.getElementById('myLineChart');
+    const barchart = document.getElementById('barChart');
+    const pieChart = document.getElementById('pieChart');
+
+    // Destroy existing Chart instances before creating new ones
+    if (linechart && Chart.getChart(linechart)) {
+        Chart.getChart(linechart).destroy();
+    }
+    if (barchart && Chart.getChart(barchart)) {
+        Chart.getChart(barchart).destroy();
+    }
+    if (pieChart && Chart.getChart(pieChart)) {
+        Chart.getChart(pieChart).destroy();
+    }
+
+    $.ajax({
+        url: url,
+        method: 'GET',
+        success: function(res) {
+            new Chart(linechart, {
+                type: "line",
+                data: {
+                    labels: res.labelsByCount,
+                    datasets: [{
+                        label: "Sales by orders",
+                        data: res?.dataByCount,
+                        borderColor: "blue",
+                        fill: false
+                    }]
+                },
+                options: {
+                    legend: { display: true },
+                    text: "Sales by Amount"
+                }
+            });
+
+            var barColors = ["red", "green", "blue", "orange", "brown", "blue",
+                "#00aba9",
+                "#2b5797",
+                "#e8c3b9",
+                "#1e7145",
+                "red", "green"];
+
+            new Chart(barchart, {
+                type: "bar",
+                data: {
+                    labels: res.labelsByAmount,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: res?.dataByAmount
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: "Sales by Amount"
+                    }
+                }
+            });
+
+            var barColors = [
+                "blue",
+                "#00aba9",
+                "#2b5797",
+                "#e8c3b9",
+                "#1e7145",
+                "red", "green", "blue", "orange", "brown", "yellow"
+            ];
+
+            new Chart(pieChart, {
+                type: "pie",
+                data: {
+                    labels: res.labelsByCount,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: res.dataByCount
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: "sales by order"
+                    }
+                }
+            });
+        }
+    });
+}
+
+  </script>
+
+
+  <script src="../../js/adminDashbordAjax.js"></script>
+  <%- include('../layouts/adminFooter'); %>

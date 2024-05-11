@@ -1,0 +1,84 @@
+/* body{
+  background: #f9f9f9;
+  color: #555e58;
+} */
+
+.wrapper {
+  position: relative;
+  margin: 0;
+  width: 550px;
+  padding-left: 150px;
+}
+
+.img-selection {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+}
+
+.img-thumbnail:first-of-type {
+  margin-top: 0;
+}
+
+.img-thumbnail {
+  margin-top: 10px;
+  width: 140px;
+  height: 120px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: 0.3s ease;
+  opacity: 0.5;
+}
+
+.img-thumbnail:hover {
+  opacity: 1;
+}
+
+.img-thumbnail.selected {
+  opacity: 1;
+}
+
+.big-img {
+  position: relative;
+  width: 445px;
+  height: 445px;
+  border: 1px solid #ddd;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+/* .big-img img.zoom {
+  position: absolute;
+  transition: width 0.2s ease-out, opacity 0.2s ease-out 0.2s;
+} */
+
+.display-img {
+  width: 100%;
+}
+
+.card-radio {
+  background-color: #fff;
+  border: 2px solid #eff0f2;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.card-radio:hover {
+  cursor: pointer;
+}
+
+.card-radio-label {
+  display: block;
+}
+.card-radio-input {
+  display: none;
+}
+
+.card-radio-input:checked + .card-radio {
+  border-color: #3b76e1 !important;
+}

@@ -1,0 +1,456 @@
+<%- include('../layouts/adminHeader'); %>
+    <main class="ps-2">
+        
+        <div class="">
+            <div style="width: 60% ;">
+                <form action="/admin/addProduct" method="post" enctype="multipart/form-data" class="">
+      
+                     <!-- Product name------------description -->
+                    <div class="border border-gray " style=" padding: 20px; border-radius: 20px;background-color: white;">
+                        <strong>General Information</strong>
+                        <div class="mb-3 mt-4">
+                            <label for="exampleInputEmail1" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="exampleInputEmail1" name="productName" placeholder="Type Product name here.." oninput="validateProductName(this)" required>
+                            <div id="productNameValidation" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Product Description</label>
+                            <textarea name="description" class="form-control" cols="30" rows="10" placeholder="Type Product Description here" oninput="validateDescription(this)" required></textarea>
+                            <div id="descriptionValidation" style="color: red; margin-top: 5px;"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="">Specification</label>
+                            <div id="specs-container-1" class="mb-3">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" id="exampleInputEmail1" name="specification" aria-describedby="emailHelp" placeholder="Enter specification" oninput="validateSpecification(this)" required>
+                                    <button class="btn btn-success" onclick="addSpecification()"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="specificationValidation" style="color: red; margin-top: 5px;"></div>
+                            </div>
+                        </div>
+      
+                    <!-- image------------------------ -->
+                    <div class="border border-gray mt-2" style="padding: 20px; border-radius: 20px;">
+                        <strong>Media Information</strong>
+                        <br><label for="">Photo</label>
+                        <div id="image-container" class="mt-3">
+                            <!-- Image inputs will be added here dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-primary mt-3" onclick="addImageInput()">Add Image</button>
+                    </div>
+      
+                    <!-- pricing------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <strong>Pricing</strong>
+                    <div  class=" d-flex align-items-center ">
+                        <div class="mb-3 mt-4">
+                            <label for="exampleInputEmail1" class="form-label">Base Price</label>
+                            <input type="text" class="form-control" name="price" id="basePriceInput" aria-describedby="emailHelp" placeholder="Enter Base Price" oninput="validateBasePrice()" required>
+                            <div id="basePriceValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                        <div class="mb-3 mt-4 ms-5">
+                            <label for="exampleInputEmail1" class="form-label">Offer Price</label>
+                            <input type="text" class="form-control" name="discountPrice" id="offerPriceInput" aria-describedby="emailHelp" placeholder="Enter Offer Price" oninput="validateOfferPrice()" required>
+                            <div id="offerPriceValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                    </div>
+                    </div>
+      
+                    <!-- variation----------------- -->
+                    <div class="border border-gray mt-2" style="padding: 20px; border-radius: 20px;">
+                        <strong>Variation</strong>
+                        <div class="mb-3 mt-4">
+                            <label for="colorInput" class="form-label">Color</label>
+                            <input type="text" class="form-control" name="color" id="colorInput" placeholder="Enter Color" oninput="validateColor()">
+                            <div id="colorValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>
+                    </div>                    
+      
+                    <!-- brand------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4">
+                            <label for="brandSelect" class="form-label">Brand</label>
+                            <select class="form-control" id="brandSelect" name="brand" onchange="validateBrandSelect()" required
+                                style="width: 38%;height: 35px;border-radius: 5px;padding-left: 5px;margin-right: 4%;">
+                                <option value="" selected disabled>Select a Brand</option>
+                                <% brand.forEach(ele => { %>
+                                <option value='<%-ele._id-%>'><%- ele.Name %></option>
+                                <% }) %>
+                            </select>
+                            <div id="brandValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                    </div>
+      
+                    <!-- category------------------------------ -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4">
+                            <label for="categorySelect" class="form-label">Category</label>
+                            <select class="form-control" id="categorySelect" name="category" onchange="validateCategorySelect()" required
+                                style="width: 38%;height: 35px;border-radius: 5px;padding-left: 5px;margin-right: 4%;">
+                                <option value="" selected disabled>Select a Category</option>
+                                <% category.forEach(ele => { %>
+                                <option value='<%-ele._id-%>'><%- ele.Name %></option>
+                                <% }) %>
+                            </select>
+                            <div id="categoryValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                    </div>
+      
+                    <!-- status-------------------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4 d-flex">
+                            <label for="stockInput" class="form-label">Stock</label>
+                            <input type="number" class="form-control ms-3" name="stock" id="stockInput" aria-describedby="emailHelp" style="width: 10%; border-style: solid;border-color: black;" placeholder="" oninput="validateStockInput()">
+                            <div id="stockValidationMessage" style="color: red; margin-top: 5px;"></div>
+                        </div>                        
+                    </div>
+                    <div class="mt-3 mb-3 d-flex align-items-center justify-content-center" style="width: 100%;">
+                        <button type="submit" class="btn btn-success" style="width: 20%;" id="savebtn" disabled>Save</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </main>
+
+<script>
+ let imageCount = 1;
+
+ function btnactive(){
+    $('#savebtn').prop('disabled', false);
+ }
+
+function addImageInput() {
+    btnactive()
+    const imageContainer = document.getElementById('image-container');
+    const div = document.createElement('div');
+    div.classList.add('mb-3', 'd-flex', 'align-items-center');
+    div.innerHTML = `
+        <div style="width: 100px; height: 100px; border: 1px solid grey; margin-right: 10px;">
+            <img id="imagePreview${imageCount}" src="/images/default.jpg" alt="" style="width: 100%; height: 100px;">
+        </div>
+        <input type="file" name="image${imageCount}" id="imageInput${imageCount}" accept="image/*" onchange="change(event, ${imageCount})" style="flex: 1; height: 35px; border-radius: 5px;" required>
+        <button type="button" class="btn btn-danger ms-3" onclick="removeImageInput(${imageCount})">Remove</button>
+    `;
+    imageContainer.appendChild(div);
+    imageCount++;
+
+    // Add a new row after every fourth input field
+    if (imageCount % 4 === 0) {
+        const newRow = document.createElement('div');
+        newRow.classList.add('mt-3');
+        imageContainer.appendChild(newRow);
+    }
+}
+
+function removeImageInput(imageNumber) {
+    const imageContainer = document.getElementById('image-container');
+    const imageInput = document.getElementById(`imageInput${imageNumber}`);
+    const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
+    imageInput.parentNode.remove();
+    imagePreview.parentNode.remove();
+    
+    imageCount--;
+
+    // If a row becomes empty after removing an input field, remove the row
+    const lastRow = imageContainer.lastChild;
+    if (lastRow.children.length === 0) {
+        lastRow.remove();
+    }
+}
+
+
+
+
+    function change(event,no){
+       document.getElementById(`imagePreview${no}`).src=URL.createObjectURL(event.target.files[0])
+    }
+
+    function addSpecification() {
+        const container = document.getElementById('specs-container-1');
+        
+        // Create a new input field with a remove button
+        const inputField = document.createElement('div');
+        inputField.innerHTML = `
+        <div class="d-flex mt-3">
+        <input type="text" class="form-control" id="exampleInputEmail1" name="specification" aria-describedby="emailHelp" placeholder="Enter specification" oninput="validateSpecification(this)">
+          <button class="btn btn-danger" onclick="removeSpecification(this)">Remove</button>
+        </div>
+        `;
+        
+        // Append the new input field to the container
+        container.appendChild(inputField);
+      }
+      
+      function removeSpecification(button) {
+        // Get the parent element of the button (which is the input field div)
+        const inputField = button.parentElement;
+        
+        // Remove the input field from the DOM
+        inputField.remove();
+      }
+
+// validation
+const submitButton = document.querySelector('button[type="submit"]');
+    
+function validateProductName(input) {
+    const productName = input.value.trim(); // Trim leading and trailing spaces
+    const isValid = productName !== '' && !/^\s+$/.test(productName); // Check if not empty and not only spaces
+
+    const validationMessage = document.getElementById('productNameValidation');
+    if (!isValid) {
+        submitButton.disabled = true
+        validationMessage.textContent = "Product name is required.";
+        input.setCustomValidity("Product name is required and cannot contain only spaces.");
+        input.parentNode.classList.add('has-error'); // Add a class for styling
+        return false
+    } else {
+        validationMessage.textContent = ""; // Clear validation message
+        input.setCustomValidity(""); // Clear custom validation
+        input.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateDescription(textarea) {
+    const description = textarea.value.trim(); // Trim leading and trailing spaces
+    const isValid = description !== '' && !/^\s+$/.test(description); // Check if not empty and not only spaces
+
+    const validationMessage = document.getElementById('descriptionValidation');
+    if (!isValid) {
+        validationMessage.textContent = "Product description is required";
+        textarea.setCustomValidity("Product description is required and cannot contain only spaces.");
+        textarea.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        validationMessage.textContent = ""; // Clear validation message
+        textarea.setCustomValidity(""); // Clear custom validation
+        textarea.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateSpecification(input) {
+    const specification = input.value.trim(); // Trim leading and trailing spaces
+    const isValid = specification !== '' && !/^\s+$/.test(specification); // Check if not empty and not only spaces
+
+    const validationMessage = document.getElementById('specificationValidation');
+    if (!isValid) {
+        validationMessage.textContent = "Specification is required and cannot contain only spaces.";
+        input.setCustomValidity("Specification is required and cannot contain only spaces.");
+        input.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        validationMessage.textContent = ""; // Clear validation message
+        input.setCustomValidity(""); // Clear custom validation
+        input.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateBasePrice() {
+    const basePriceInput = document.getElementById("basePriceInput");
+    const basePriceValidationMessage = document.getElementById("basePriceValidationMessage");
+    const basePriceValue = basePriceInput.value.trim();
+
+    if (basePriceValue === "") {
+        basePriceValidationMessage.textContent = "Base Price is required.";
+        basePriceInput.setCustomValidity("Base Price is required.");
+        basePriceInput.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        basePriceValidationMessage.textContent = "";
+        basePriceInput.setCustomValidity("");
+        basePriceInput.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateOfferPrice() {
+    const offerPriceInput = document.getElementById("offerPriceInput");
+    const offerPriceValidationMessage = document.getElementById("offerPriceValidationMessage");
+    const offerPriceValue = offerPriceInput.value.trim();
+
+    if (offerPriceValue === "") {
+        offerPriceValidationMessage.textContent = "Offer Price is required.";
+        offerPriceInput.setCustomValidity("Offer Price is required.");
+        offerPriceInput.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        offerPriceValidationMessage.textContent = "";
+        offerPriceInput.setCustomValidity("");
+        offerPriceInput.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateColor() {
+    const colorInput = document.getElementById("colorInput");
+    const colorValidationMessage = document.getElementById("colorValidationMessage");
+    const colorValue = colorInput.value.trim();
+
+    if (colorValue === "") {
+        colorValidationMessage.textContent = "Color is required.";
+        colorInput.setCustomValidity("Color is required.");
+        colorInput.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        colorValidationMessage.textContent = "";
+        colorInput.setCustomValidity("");
+        colorInput.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateBrandSelect() {
+    const brandSelect = document.getElementById("brandSelect");
+    const brandValidationMessage = document.getElementById("brandValidationMessage");
+
+    if (brandSelect.value === "") {
+        brandValidationMessage.textContent = "Please select a brand.";
+        brandSelect.setCustomValidity("Please select a brand.");
+        brandSelect.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        brandValidationMessage.textContent = "";
+        brandSelect.setCustomValidity("");
+        brandSelect.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateCategorySelect() {
+    const categorySelect = document.getElementById("categorySelect");
+    const categoryValidationMessage = document.getElementById("categoryValidationMessage");
+
+    if (categorySelect.value === "") {
+        categoryValidationMessage.textContent = "Please select a category.";
+        categorySelect.setCustomValidity("Please select a category.");
+        categorySelect.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        categoryValidationMessage.textContent = "";
+        categorySelect.setCustomValidity("");
+        categorySelect.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateStockInput() {
+    const stockInput = document.getElementById("stockInput");
+    const stockValidationMessage = document.getElementById("stockValidationMessage");
+
+    if (stockInput.value.trim() === "") {
+        stockValidationMessage.textContent = "Stock field is required.";
+        stockInput.setCustomValidity("Stock field is required.");
+        stockInput.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else if (isNaN(stockInput.value.trim())) {
+        stockValidationMessage.textContent = "Stock must be a number.";
+        stockInput.setCustomValidity("Stock must be a number.");
+        stockInput.parentNode.classList.add('has-error'); // Add a class for styling
+        submitButton.disabled = true
+        return false
+    } else {
+        stockValidationMessage.textContent = "";
+        stockInput.setCustomValidity("");
+        stockInput.parentNode.classList.remove('has-error'); // Remove the error styling
+        submitButton.disabled = false
+        return true
+    }
+}
+
+function validateImage(inputId, imageNumber) {
+    const input = document.getElementById(inputId);
+    const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
+    const file = input.files[0];
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+
+    if (!file) {
+        // No file selected
+        input.setCustomValidity("Please select an image file.");
+        input.parentNode.classList.add('has-error');
+        submitButton.disabled = true
+        return false
+    } else if (!allowedExtensions.exec(file.name)) {
+        // File type is not allowed
+        input.setCustomValidity("Only image files with extensions .jpg, .jpeg, .png, or .gif are allowed.");
+        input.parentNode.classList.add('has-error');
+        submitButton.disabled = true
+        return false
+    } else {
+        // Valid image file selected
+        input.setCustomValidity("");
+        input.parentNode.classList.remove('has-error');
+        submitButton.disabled = false
+        // Show image preview
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        return true
+    }
+}
+
+
+
+
+
+// Add click event listener to the submit button
+submitButton.addEventListener('click', function(event) {
+    // Call the validation functions for all input fields
+    const productNameValid = validateProductName(document.getElementById('productNameInput'));
+    const descriptionValid = validateDescription(document.getElementById('descriptionTextarea'));
+    const specificationValid = validateSpecification(document.getElementById('specificationInput'));
+    const basePriceValid = validateBasePrice();
+    const offerPriceValid = validateOfferPrice();
+    const colorValid = validateColor();
+    const brandSelectValid = validateBrandSelect();
+    const categorySelectValid = validateCategorySelect();
+    const stockInputValid = validateStockInput();
+    const imageValid = validateImage('imageInput', 1);
+
+    // Check if all validations pass
+    if (!productNameValid || !descriptionValid || !specificationValid || !basePriceValid || !offerPriceValid ||
+        !colorValid || !brandSelectValid || !categorySelectValid || !stockInputValid || !imageValid) {
+        // Prevent the default action (e.g., form submission) if validations fail
+        event.preventDefault();
+        Toastify({
+                    text: 'Plese Fill the form Properly',
+                    duration: 800,
+                    close: false,
+                    gravity: "top",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+                return false
+    } else {
+        // All validations passed. Form can be submitted.
+        console.log('All validations passed. Form can be submitted.');
+        return true
+    }
+});
+
+</script>
+<%- include('../layouts/adminFooter'); %>

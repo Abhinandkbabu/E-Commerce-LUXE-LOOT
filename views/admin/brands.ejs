@@ -1,0 +1,173 @@
+<%- include('../layouts/adminHeader'); %>  
+    <main >
+            <div class="container">
+                    <div class="bg-white p-2" id="myDiv" >
+                        <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            Add Brand
+                          </button>
+                        <table class="table table-hover table-stripped-colum text-center shadow" id="mytable">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th class="text-center">ID</th>
+                                    <th class="text-center">Name</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% let j=1 %>
+                               <% for(data of brand){ %>
+                                <tr>
+                                    <td class="text-center"><%= j++ %></td>
+                                    <td class="text-center"><%= data.Name %></td>
+                                    <td>
+                                        <% if(data.Status=='Active'){ %> <h6><span class="badge text-bg-success">Active</span></h6> <% } %>
+                                         <% if(data.Status!='Active'){ %> <h6><span class="badge text-bg-danger">Blocked</span></h6> <% } %>
+                                    </td>
+                                    <td class="text-center">
+                                        <% if(data.Status=='Active'){ %> <button class="btn btn-sm btn-danger" onclick="changeStatus('<%- data._id -%>','Blocked')"><i class="fa-solid fa-eye-slash" style="color: #ffffff;"></i></button> <% } %>
+                                         <% if(data.Status!='Active'){ %> <button class="btn btn-sm btn-success" onclick="changeStatus('<%- data._id -%>','Active')"><i class="fa-solid fa-eye" style="color: #ffffff;"></i></button> <% } %>
+                                     </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <!-- <a href="/admin/addBrand"><button type="button" class="btn btn-primary">Add Brand</button></a> -->
+            
+        
+        
+        <!-- ..........add brand modal......................... -->
+        <div class="modal fade modal-md" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Brand</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body p-5">
+                      <form class="mx-md-2" id="addCategoryForm" action="#" method="">
+                          <div class="d-flex flex-row align-items-center mb-2">
+                            <div class="form-outline flex-fill mb-0">
+                                <input type="text" name="Name" id="catName" class="form-control" placeholder="Category Name" oninput="validateCategoryName()" required />
+                                <div class="error-message text-warning" id="name-error"></div>
+                            </div>
+                          </div>
+                          <div class="d-flex mb-lg-4">
+                              <button type="button" id="submitBtn" class="btn btn-primary">Add</button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+        <!-- ...............end brand add modal......................... -->
+    </main>
+<script>
+function reloadDiv() {
+    // Reload content of #myDiv from the current URL, replacing the content of #myDiv
+    $("#myDiv").load(location.href + " #myDiv", function() {
+        // Reinitialize DataTable after content reload
+        $('.table').DataTable().destroy(); // Destroy existing DataTable instance
+        $('.table').DataTable(); // Reinitialize DataTable
+    });
+}
+
+
+
+$(document).ready(function(){
+    // Function to handle form submission
+    $("#submitBtn").click(function(){
+        // Get form data
+        var formData = $("#addCategoryForm").serialize();
+        
+        // AJAX request to submit form data
+        $.ajax({
+            type: "POST",
+            url: '/admin/addBrand',
+            data: formData,
+            success: function(response){
+                // Handle success response
+                console.log(response);
+                Toastify({
+                    text: response.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "bottom",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+                // Optionally, close the modal after successful submission
+                $("#staticBackdrop").modal("hide");
+                reloadDiv()
+            },
+            error: function(xhr, status, error){
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
+function changeStatus(id,status){
+    $.ajax({
+            type: "POST",
+            url: `/admin/brandStatus`,
+            data: {
+                brandid:id,
+                status:status
+            },
+            success: function(response){
+                // Handle success response
+                console.log(response);
+                Toastify({
+                    text: response.msg,
+                    duration: 800,
+                    close: false,
+                    gravity: "bottom",
+                    position: 'center',
+                    style: {
+                        background: "rgba(0, 0, 255, 0.7)", // Set the background color with opacity
+                        color: "#fff",
+                        borderRadius: "15px",
+                    }
+                }).showToast();
+                // Optionally, close the modal after successful submission
+                reloadDiv()
+            },
+            error: function(xhr, status, error){
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+}
+
+function validateCategoryName() {
+        const nameInput = document.getElementById('catName');
+        const errorDiv = document.getElementById('name-error');
+        const name = nameInput.value.trim(); // Remove leading and trailing spaces
+        const submitBtn = document.getElementById('submitBtn');
+        // Check if the name is empty
+        if (name === '') {
+            errorDiv.textContent = 'Category name cannot be empty';
+            nameInput.classList.add('is-invalid');
+            submitBtn.disabled = true;
+        } else if (!/^[\w]+(?:[\s]+[\w]+)*$/.test(name)) {
+            // Check if the name contains only one space between words
+            errorDiv.textContent = 'Only one space is allowed between words';
+            nameInput.classList.add('is-invalid');
+            submitBtn.disabled = true
+            
+        } else {
+            errorDiv.textContent = ''; // Clear the error message
+            nameInput.classList.remove('is-invalid');
+            submitBtn.disabled = false
+        }
+    }
+</script>
+<%- include('../layouts/adminFooter'); %>

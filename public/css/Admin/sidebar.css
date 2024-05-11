@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap');
+
+/* *, *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+} */
+
+/* body {
+	width: 100%;
+	height: 100vh;
+	font-family: "Inter";
+	display: grid;
+	place-content: center;
+	margin: 0;
+	background: radial-gradient(circle at center, #181836, #111126);
+} */
+body{
+	display: flex;
+}
+.navwrapper {
+	/* d-width: 14rem; */
+	display: flex;
+  position: sticky;
+    left: 0;
+    top: 15%; /* Center vertically */
+	gap: 1rem;
+    z-index: 2;
+}
+.nav {
+	width: min-content;
+	display: flex;
+	flex-direction: column;
+	background: #1f1f4c;
+	border-radius: 1rem;
+	padding: 0.5rem;
+	box-shadow: rgba(0,0,0, 0.2) 0px 7px 29px 0px;
+  
+}
+.navbutton {
+	position: relative;
+	display: flex;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	isolation: isolate;
+	transition: width 300ms;
+}
+.nav:has(.navbutton:hover) > .navbutton,
+.nav.demoanim > .navbutton {
+	width: 14rem;
+}
+.navbutton:after {
+	position: absolute;
+	content: "";
+	inset: 1rem;
+	background: #292960;
+	border-radius: 0.5rem;
+	z-index: -2;
+	opacity: 0;
+	transition: inset 300ms, opacity 300ms;
+}
+.navbutton:hover:after,
+.nav.demoanim .navbutton.demoanimhover:after {
+	inset: 0;
+	opacity: 1;
+}
+.navicon {
+	flex-shrink: 0;
+	position: relative;
+	width: 3.5rem;
+	display: grid;
+	place-content: center;
+	padding-bottom: 0.125rem;
+	font-size: 1.375rem;
+	--ionicon-stroke-width: 40px;
+	color: #c9c9ff;
+}
+.navicon:after {
+	position: absolute;
+	content: "";
+	inset: 1rem;
+	background: #323276;
+	border-radius: 0.5rem	0 0 0.5rem;
+	z-index: -1;
+	opacity: 0;
+	transition: inset 300ms, opacity 300ms, border-radius 300ms ease;
+}
+
+.nav:not(:has(.navbutton:hover), .demoanim) .navbutton.selected > .navicon:after{
+	inset: 0;
+	opacity: 1;
+	border-radius: 0.5rem;
+}
+.navbutton:hover > .navicon:after,
+.nav.demoanim .navbutton.demoanimhover > .navicon:after{
+	inset: 0;
+	opacity: 1;
+}
+.navlabel {
+	flex-shrink: 0;
+	display: grid;
+	place-content: center;
+	padding-bottom: 0.125rem;
+	padding-left: 0.5rem;
+	font-size: 1.125rem;
+	color: #c9c9ff;
+}
+
+.navlabel a{
+    text-decoration: none;
+    color: white;
+}

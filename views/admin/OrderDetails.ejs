@@ -1,0 +1,319 @@
+<%- include('../layouts/adminHeader'); %>
+<style>
+    .card {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+}
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: 1rem;
+}
+.text-reset {
+    --bs-text-opacity: 1;
+    color: inherit!important;
+}
+a {
+    color: #5465ff;
+    text-decoration: none;
+}
+</style>
+<main>
+<% 
+  const dateString = order.orderDate;
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const day = date.getDate();
+%>
+<% function getOrderStatusBadgeClass(orderStatus) {
+    switch (orderStatus) {
+        case 'Order Processing':
+            return 'text-bg-info';
+        case 'Order Confirmed':
+            return 'text-bg-primary';
+        case 'Order Shipped':
+            return 'text-bg-warning';
+        case 'Order Delivered':
+            return 'text-bg-success';
+        case 'Canceled':
+            return 'text-bg-danger';
+        case 'Return Approved':
+            return 'text-bg-success'
+        default:
+            return 'text-bg-secondary';
+    }
+} %>
+<div class="container-fluid">
+
+    <div class="container">
+      <!-- Title -->
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <h2 class="h5 mb-0"><a href="#" class="text-muted"></a><%= order._id %></h2>
+      </div>
+    
+      <!-- Main content -->
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Details -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="mb-3 d-flex justify-content-between">
+                <div>
+                  <span class="me-3"><%= `${month} ${day}, ${year}` %></span>
+                  <span class="me-3"></span>
+                  <span class="me-3"></span>
+                  <span class="stat badge <%= getOrderStatusBadgeClass(order.orderStatus) %>">
+                    <%= order.orderStatus %>
+                </span>
+                </div>
+                <div class="d-flex">
+                  <div class="dropdown">
+                    <button class="btn btn-link p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
+                      <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i> Print</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-borderless">
+                <tr>
+                  <% order.products.forEach(product=>{%>
+                    <tr>
+                        <td>
+                          <div class="d-flex mb-2">
+                            <div class="flex-shrink-0">
+                              <img src="/uploads/<%= product.ProductId.images[0] %>" alt="" width="55" class="img-fluid">
+                            </div>
+                            <div class="flex-lg-grow-1 ms-3">
+                              <h6 class="small mb-0"><a href="#" class="text-reset"><%= product.ProductId.productName %></a></h6>
+                              <span class="small"><%= product.ProductId.color %></span>
+                            </div>
+                          </div>
+                        </td>
+                        <td><%= product.quantity %></td>
+                        <td class="text-end">₹<%= product.quantity*product.ProductId.price %></td>
+                        <td>
+                          <span class="stat badge <%= getOrderStatusBadgeClass(product.OrderStatus) %>">
+                            <%= product.OrderStatus %> 
+                        </span>
+                        
+                        </td>
+
+                        <td>
+                          <% if(product.OrderStatus=='Requested Return'){%>
+                              <button class="btn btn-sm" onclick="open1stmodal('<%= product.returnReason %>','<%= product.ProductId._id %>')"><i class="fa-solid fa-eye" style="color: #000000;"></i></button>
+                              <%}%>
+                            </td>
+                      </tr>
+                  <%})%>
+                </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2">Subtotal</td>
+                    <td class="text-end">₹<%= order.subTotal+order.discountAmount %></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">Coupon</td>
+                    <td class="text-end">₹00.00</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">Discount</td>
+                    <td class="text-danger text-end">-₹<%= order.discountAmount %></td>
+                  </tr>
+                  <tr class="fw-bold">
+                    <td colspan="2">TOTAL</td>
+                    <td class="text-end">₹<%= order.subTotal %></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <!-- Payment -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <h3 class="h6">Payment Method</h3>
+                  <p><%= order.paymentMethod %><br>
+                  Total: ₹<%= order.subTotal %> <% if(order.PaymentStatus=='Pending'){%>
+                    <span class="badge bg-warning rounded-pill"><%= order.PaymentStatus %></span>
+                  <%}else{%> <span class="badge bg-success rounded-pill"><%= order.PaymentStatus %></span> <% } %></p>
+                </div>
+                <div class="col-lg-6">
+                  <h3 class="h6">Delivery address</h3>
+                  <address>
+                    <strong><%= order.address.name %></strong><br>
+                    <%= order.address.addressLane %><br>
+                    <%= order.address.locality %><br>
+                    <%= order.address.city %><br>
+                    <%= order.address.district %>, <%= order.address.pincode %><br>
+                    <%= order.address.state %><br>
+                    <strong title="Phone">Ph:</strong> <%= order.address.mobile %>
+                  </address>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="col-lg-4"> -->
+          <!-- Customer Notes -->
+          <!-- <div class="card mb-4">
+            <div class="card-body">
+              <h3 class="h6">Customer Notes</h3>
+              <p>Sed enim, faucibus litora velit vestibulum habitasse. Cras lobortis cum sem aliquet mauris rutrum. Sollicitudin. Morbi, sem tellus vestibulum porttitor.</p>
+            </div>
+          </div>
+          <div class="card mb-4"> -->
+            <!-- Shipping information -->
+            <!-- <div class="card-body">
+              <h3 class="h6">Shipping Information</h3>
+              <strong>FedEx</strong>
+              <span><a href="#" class="text-decoration-underline" target="_blank">FF1234567890</a> <i class="bi bi-box-arrow-up-right"></i> </span>
+              <hr>
+              <h3 class="h6">Address</h3>
+              <address>
+                <strong>John Doe</strong><br>
+                1355 Market St, Suite 900<br>
+                San Francisco, CA 94103<br>
+                <abbr title="Phone">P:</abbr> (123) 456-7890
+              </address>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+</div>
+<!-- ...............rreturn modal.............................. -->
+<div class="modal fade" id="firstmodal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Return Reason</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span id="returnproductid" style="display: none;"></span>
+        <span id="returnReason"></span>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger btn-sm" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Reject</button>
+        <button class="btn btn-sm btn-success" onclick="Approvereturn('<%= order._id%>')">Accept</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Reject Reason</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <input type="text" id="rejectReason" placeholder="Enter The Reason for Return" style="width: 100%; border-radius: 10px; border: none;">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-sm" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back</button>
+        <button class="btn btn-success btn-sm" onclick="rejectReturn('<%= order._id%>')">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+  function open1stmodal(reason,productid){
+    const returnReasonSpan = document.getElementById('returnReason');
+    const productidelem = document.getElementById('returnproductid');
+    productidelem.innerHTML=productid
+    returnReasonSpan.innerHTML = reason
+    console.log(productid)
+    $('#firstmodal').modal('show')
+  }
+
+  function Approvereturn(orderid){
+    const returnProductSpan = document.getElementById('returnproductid');
+  const productid = returnProductSpan.innerHTML;
+  
+  $.ajax({
+    url:'/admin/approveReturn',
+    method:'POST',
+    data:{
+      orderid:orderid,
+      productid:productid
+    },
+    success: function(res){
+
+      Toastify({
+          text: res.msg,
+          duration: 800,
+          close: false,
+          gravity: "bottom",
+          position: 'center',
+          style: {
+              background: "rgba(169, 23, 148)", // Set the background color with opacity
+              color: "#fff",
+              borderRadius: "15px",
+                      }
+      }).showToast();
+      setTimeout(()=>{
+        window.location.reload()
+      },780)
+    },
+    error: function(err){
+
+    }
+  })
+
+  }
+
+  function rejectReturn(orderid){
+        
+        const returnProductSpan = document.getElementById('returnproductid');
+        const rejectReason = document.getElementById('rejectReason').value
+        const productid = returnProductSpan.innerHTML;
+        $.ajax({
+          url: `/admin/rejectReturn`,
+          method: 'POST',
+          data :{
+            orderid:orderid,
+            productid:productid,
+            rejectReason:rejectReason
+          },
+          success: function (res) {
+            Toastify({
+                text: "Return rejected",
+                duration: 800,
+                close: false,
+                gravity: "top",
+                position: 'center',
+                style: {
+                  background: "rgba(255, 0, 0, 0.7)", // Set the background color with opacity
+                  color: "#fff",
+                  borderRadius: "15px",
+                }
+              }).showToast();
+              $('#rejectReasonModal').modal('hide')
+              setTimeout(()=>{
+                window.location.reload()
+              },800)
+          },
+          error: function (err) {
+              // Handle error if needed
+          }
+      });
+        
+    }
+</script>
+<%- include('../layouts/adminFooter'); %>

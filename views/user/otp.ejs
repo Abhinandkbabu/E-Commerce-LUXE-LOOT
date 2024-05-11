@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTP Verification Form</title>
+  <link rel="stylesheet" href="css/user/otp.css" />
+  <!-- Boxicons CSS -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <!-- SweetAlert CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.2.7/sweetalert2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+</head>
+<body>
+  <div class="container">
+    <header>
+      <i class="bx bxs-check-shield"></i>
+    </header>
+    <h4>Enter OTP Code</h4>
+    <form id="otpForm" action="#" method="post">
+      <div class="input-field">
+        <input type="number" name="num1"/>
+        <input type="number" name="num2" disabled />
+        <input type="number" name="num3" disabled />
+        <input type="number" name="num4" disabled />
+      </div>
+      <button id="verifyBtn" type="submit"">Verify OTP</button>
+    </form>
+    <% if(error){  %>
+      <span style="color: red;"> <%= error  %></span>
+      <% } %>
+    <button id="resendOTP" class="resendbutton" style="display: none;"  onclick="resendOTP()">Resend OTP</button>
+    <div><span id="timer" style="color: white;">2:00</span></div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.2.7/sweetalert2.all.min.js"></script>
+
+<script>
+  var timeLimitInMinutes = 2;
+  var timeLimitInSeconds = timeLimitInMinutes * 60;
+  var timerElement = document.getElementById('timer');
+  var verifyBtn = document.getElementById('verifyBtn');
+  var resendOTPButton = document.getElementById('resendOTP');
+  var timerInterval;
+
+  function startTimer() {
+    timeLimitInSeconds--;
+    var minutes = Math.floor(timeLimitInSeconds / 60);
+    var seconds = timeLimitInSeconds % 60;
+
+    if (timeLimitInSeconds < 0) {
+      timerElement.textContent = '00:00';
+      clearInterval(timerInterval);
+      resendOTPButton.style.display = 'inline'; // Show the "Resend OTP" button
+      verifyBtn.style.display = 'none'; // Hide the "Verify OTP" button
+      return;
+    }
+
+    if (minutes < 10) {
+      minutes = '0' + minutes;
+    }
+    if (seconds < 10) {
+      seconds = '0' + seconds;
+    }
+
+    timerElement.textContent = minutes + ':' + seconds;
+  }
+
+  timerInterval = setInterval(startTimer, 1000);
+
+  const inputs = document.querySelectorAll("input"),
+    button = document.querySelector("button");
+
+  // iterate over all inputs
+  inputs.forEach((input, index1) => {
+    input.addEventListener("keyup", (e) => {
+      const currentInput = input,
+        nextInput = input.nextElementSibling,
+        prevInput = input.previousElementSibling;
+      if (currentInput.value.length > 1) {
+        currentInput.value = "";
+        return;
+      }
+      if (nextInput && nextInput.hasAttribute("disabled") && currentInput.value !== "") {
+        nextInput.removeAttribute("disabled");
+        nextInput.focus();
+      }
+      if (e.key === "Backspace") {
+        inputs.forEach((input, index2) => {
+          if (index1 <= index2 && prevInput) {
+            input.setAttribute("disabled", true);
+            input.value = "";
+            prevInput.focus();
+          }
+        });
+      }
+      if (!inputs[3].disabled && inputs[3].value !== "") {
+        button.classList.add("active");
+        return;
+      }
+      button.classList.remove("active");
+    });
+  });
+
+  window.addEventListener("load", () => inputs[0].focus());
+
+  function resendOTP() {
+
+    $.ajax({
+        url: '/resend-otp', // Check if this is the correct endpoint
+        method: 'GET',
+        success: function(msg) {
+            // Handle success response
+            // resendOTPButton.disabled = true;
+            resendOTPButton.style.display = 'none'; // Show the "Resend OTP" button
+            verifyBtn.style.display = 'inline';
+            timeLimitInSeconds = timeLimitInMinutes * 60;
+            timerInterval = setInterval(startTimer, 1000);
+
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: 'OTP Sended Successfully',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        },
+        error: function(xhr, status, error) {
+            // Handle error response
+            console.error(xhr.responseText);
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Failed to resend OTP",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+  }
+
+  // Event listener for Resend OTP button
+  resendOTPButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    resendOTP();
+  });
+
+</script>
+
+
+</body>
+</html>

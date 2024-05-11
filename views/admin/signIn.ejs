@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Slide Navbar</title>
+	<link rel="stylesheet" type="text/css" href="/css/user/userlogin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div class="main">  	
+		<input type="checkbox" id="chk" aria-hidden="true">
+
+			<div class="signup">
+				<form action="/admin/signin" method="post">
+					<label for="chk" aria-hidden="true" style="margin-top: 30%;">Login</label>
+					<input type="email" name="Username" placeholder="Username" id="email-validation" required oninput="validateEmail()" >
+					<input type="password" name="Password" placeholder="Password" id="password-check" required oninput="validatePassword()">
+                    <% if(messages.error){  %>
+						<span> <%= messages.error  %></span>
+						<% } %>
+					<button type="submit">Login</button>
+				</form>
+			</div>
+	</div>
+</body>
+
+<script>
+		function validateName() {
+			var nameInput = document.getElementById('name-check');
+			var nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+			var nameError = document.getElementById('error');
+			if (!nameRegex.test(nameInput.value)) {
+				nameError.innerText = 'Invalid name format!';
+			} else {
+				nameError.innerText = '';
+			}
+		}
+
+     	function validateEmail() {
+            var emailInput = document.getElementById('email-validation');
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+            var emailError = document.getElementById('error');
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.innerText = 'Invalid email address';
+            } else {
+                emailError.innerText = '';
+            }
+        }
+
+        function validatePassword() {
+            var passwordInput = document.getElementById('password-check');
+            var passwordError = document.getElementById('error');
+            if (passwordInput.value.trim().length < 8 || /\s/.test(passwordInput.value)) {
+                passwordError.innerText = 'Password must be at least 8 characters';
+            } else {
+                passwordError.innerText = '';
+            }
+        }
+
+		function validateRepeatPassword() {
+            var repeatPasswordInput = document.getElementById('repeat-password');
+            var passwordInput = document.getElementById('password-check');
+            var repeatPasswordError = document.getElementById('error');
+            if (repeatPasswordInput.value.trim() !== passwordInput.value.trim()) {
+                repeatPasswordError.innerText = 'Passwords do not match';
+            } else {
+                repeatPasswordError.innerText = '';
+            }
+        }
+
+</script>
+
+</html>

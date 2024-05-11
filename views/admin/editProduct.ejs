@@ -1,0 +1,262 @@
+<%- include('../layouts/adminHeader'); %>
+
+    <main>
+        <div class="" style="width: 60%;">
+            <div>
+                <form action="/admin/editProduct/<%- data._id %>" method="post" enctype="multipart/form-data" class="mt-4" >
+    
+                     <!-- Product name------------description -->
+                    <div class="border border-gray ms-2" style=" padding: 20px; border-radius: 20px; background-color: white;">
+                        <strong>General Information</strong>
+                        <div class="mb-3 mt-4">
+                            <label for="exampleInputEmail1" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="exampleInputEmail1" name="productName" aria-describedby="emailHelp" value="<%- data.productName %>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Product Description</label>
+                            <textarea name="description" class="form-control" cols="30" rows="10" ><%- data.description %></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="">Specification</label>
+    
+                            <% data.specification.forEach(val=>{ %>
+                            <div id="specs-container" class="mt-3">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" id="exampleInputEmail1" name="specification" aria-describedby="emailHelp" placeholder="Enter specification" value="<%-val  %>">
+                                    <button class="btn btn-danger" onclick="removeSpecification(this)"><i class="fa-solid fa-minus" style="color: #ffffff;"></i></button>
+                                </div>
+                            </div>
+                            <% }) %>
+                            <button class="btn btn-success" onclick="addSpecification()"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+    
+                    <!-- image------------------------ -->
+                    <div class="border border-gray mt-2" style="padding: 20px; border-radius: 20px;">
+                        <strong>Media Information</strong>
+                        <br>
+                        <label for="">Photo</label>
+                        <div id="image-container" class="mt-3">
+                            <% data.images.forEach((image, index) => { %>
+                                <div style="display: inline-block; margin-right: 10px;">
+                                    <div style="width: 100px; height: 100px; border: 1px solid grey;">
+                                        <img id="imagePreview<%= index %>" src="/uploads/<%= image %>" alt="Product Image" style="width: 100%; height: 100%;">
+                                    </div>
+                                    <input type="file" name="image<%= index %>" id="imageInput<%= index %>" accept="image/*" onchange="change(event, '<%= index %>')" style="display: none;">
+                                    <button type="button" class="btn btn-danger mt-2" onclick="removeImageInput('<%= index %>', '<%= image %>', '<%= data._id %>')">Remove</button>
+                                </div>
+                            <% }) %>
+                            
+                        </div>
+                        <button type="button" class="btn btn-primary mt-3" onclick="addImageInput()">Add Image</button>
+                    </div>
+                    
+    
+                    <!-- pricing------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px ; background-color: white;">
+                        <strong>Pricing</strong>
+                    <div  class=" d-flex align-items-center ">
+                        <div class="m-1">
+                            <label for="exampleInputEmail1" class="form-label">Base Price</label>
+                            <input type="text" class="form-control" name="price" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Base Price" value="<%-data.price %>">
+                        </div>
+                        <div class="mb-3 mt-4 ms-5 ">
+                            <label for="exampleInputEmail1" class="form-label">Offer Price</label>
+                            <input type="text" class="form-control" name="discountPrice" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Discounted Price" value="<%- data.discountPrice %>">
+                        </div>
+                    </div>
+                    </div>
+    
+                    <!-- variation----------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <strong>Variation</strong>
+                        <div class="mb-3 mt-4 ">
+                            <label for="exampleInputEmail1" class="form-label">Color</label>
+                            <input type="text" class="form-control" name="color" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Color" value="<%- data.color %>">
+                        </div>
+                    </div>
+    
+                    <!-- brand------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4 ">
+                            <label for="exampleInputEmail1" class="form-label">Brand</label>
+                            <select class="" id="category" name="brand" required 
+                            style="width: 38%;height: 35px;border-radius: 5px;padding-left: 5px;margin-right: 4%;"  >
+                            <option value="<%- data?.brand?._id  %>" selected disabled><%- data?.brand?.Name %></option>
+                                    <% brand?.forEach(ele => { %>
+                                        <option value='<%-ele._id-%>' ><%- ele.Name -%></option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <!-- category------------------------------ -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4 ">
+                            <label for="exampleInputEmail1" class="form-label">Category</label>
+                            <select class="" id="category"  name="category" required
+                            style="width: 38%;height: 35px;border-radius: 5px;padding-left: 5px;margin-right: 4%;"  >
+                            <option value="<%- data?.category?._id %>" selected disabled><%- data?.category?.Name  %></option>
+                                    <% category?.forEach(ele => { %>
+                                        <option value='<%-ele._id-%>' ><%- ele.Name -%></option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <!-- status-------------------------------------- -->
+                    <div class="border border-gray mt-2"  style=" padding: 20px; border-radius: 20px">
+                        <div class="mb-3 mt-4 d-flex ">
+                            <label for="exampleInputEmail1" class="form-label">Stock</label>
+                            <input type="number" class="form-control ms-3" value="<%- data.stock %>" name="stock" id="exampleInputEmail1" aria-describedby="emailHelp" style="width: 10%; border-style: solid;border-color: black;" placeholder="stock">
+                        </div>
+                    </div>
+                    <div class="mt-5 mb-5 d-flex align-items-center justify-content-center" style="width: 100%;">
+                        <button type="submit" class="btn btn-success" style="width: 20%;">Save</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </main>
+  
+
+
+
+
+<script>
+
+let imageCount = 1;
+
+function addImageInput() {
+    const existingImagesCount = document.querySelectorAll('[id^="imagePreview"]').length;
+    const nextImageCount = existingImagesCount + imageCount;
+    const imageContainer = document.getElementById('image-container');
+    const div = document.createElement('div');
+    div.classList.add('mb-3', 'd-flex', 'align-items-center');
+    div.innerHTML = `
+        <div style="width: 100px; height: 100px; border: 1px solid grey; margin-right: 10px;">
+            <img id="imagePreview${nextImageCount}" src="/images/default.jpg" alt="" style="width: 100%; height: 100px;">
+        </div>
+        <input type="file" name="image${nextImageCount}" id="imageInput${nextImageCount}" accept="image/*" onchange="change(event, ${nextImageCount})" style="flex: 1; height: 35px; border-radius: 5px;" required>
+        <button type="button" class="btn btn-danger ms-3" onclick="removeImageInput(${nextImageCount})">Remove</button>
+    `;
+    imageContainer.appendChild(div);
+    imageCount++;
+
+    // Add a new row after every fourth input field
+    if (imageCount % 4 === 0) {
+        const newRow = document.createElement('div');
+        newRow.classList.add('mt-3');
+        imageContainer.appendChild(newRow);
+    }
+}
+
+
+function removeImageInput(imageNumber, imageId,productid) {
+    const imageContainer = document.getElementById('image-container');
+    const imageInput = document.getElementById(`imageInput${imageNumber}`);
+    const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
+    
+
+    Swal.fire({
+  title: "Are you sure?",
+  text: "Image wil be deleted Permenently",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Yes, delete it!",
+  cancelButtonText: "No, cancel!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+    $.ajax({
+        url: '/admin/removeImageEdit',
+        data: {
+            imageid:imageId,
+            productid:productid
+        },
+        method : 'POST',
+        success: function(res){
+            if(res.success){
+                
+                Swal.fire({
+      title: "Deleted!",
+      text: "Your file has been deleted.",
+      icon: "success"
+    }).then(()=>{
+        imageInput.parentNode.remove();
+                imagePreview.parentNode.remove();
+                imageCount--;
+    });
+                
+            }
+        }
+    })
+
+  } else if (
+    /* Read more about handling dismissals below */
+    result.dismiss === Swal.DismissReason.cancel
+  ) {
+    swalWithBootstrapButtons.fire({
+      title: "Cancelled",
+      text: "Your imaginary file is safe :)",
+      icon: "error"
+    });
+  }
+});
+
+
+    // If a row becomes empty after removing an input field, remove the row
+    const lastRow = imageContainer.lastChild;
+    if (lastRow.children.length === 0) {
+        lastRow.remove();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+    function change(event,no){
+       console.log("ok da")
+       document.getElementById(`imagePreview${no}`).src=URL.createObjectURL(event.target.files[0])
+     
+    }
+
+    function addSpecification() {
+        const container = document.getElementById('specs-container');
+        
+        // Create a new input field with a remove button
+        const inputField = document.createElement('div');
+        inputField.innerHTML = `
+        <div class="d-flex mt-3">
+        <input type="text" class="form-control" id="exampleInputEmail1" name="specification" aria-describedby="emailHelp" placeholder="Enter specification">
+          <button class="btn btn-danger" onclick="removeSpecification(this)"><i class="fa-solid fa-minus" style="color: #ffffff;"></i></button>
+        </div>
+        `;
+        
+        // Append the new input field to the container
+        container.appendChild(inputField);
+      }
+      
+      function removeSpecification(button) {
+        // Get the parent element of the button (which is the input field div)
+        const inputField = button.parentElement;
+        
+        // Remove the input field from the DOM
+        inputField.remove();
+      }
+      
+
+</script>
+
+
+
+
+<% -include('../layouts/adminFooter') %>

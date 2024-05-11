@@ -1,0 +1,46 @@
+<%- include('../layouts/userHeader') %>
+<body>
+    <div class="container mt-5" style="min-height: 50vh;">
+        <h3> <% if(walletbalance){ %><i class="fa-solid fa-wallet" style="color: #c7ac00;"></i> <span >Wallet Balance</span> : 
+            <span class="text-success"><%= walletbalance.walletAmount %></span> 
+            <%}else{%> <span class="text-danger">You dont have a Wallet</span> <%}%> </h3>
+        <% if(walletHistory){%>
+            <div class="mt-5">
+                <table class="table table-hover table-stripped-colum text-center shadow">
+                    <thead>
+                      <tr class="table-light">
+                        <th class="text-center">No</th>
+                        <th class="text-center">Amount</th>
+                        <th class="text-center">Reason</th>
+                        <th class="text-center">OrderId</th>
+                        <th class="text-center">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let i=1 %> <% walletHistory.actions.forEach(wallet=> { %>
+                      <tr>
+                        <td class="text-center"><%= i++ %></td>
+                        <td class="text-center">
+                            <% if(wallet.type=='Debit'){%>
+                                <span class="text-danger">-<%= wallet.amount %></span>
+                            <%}else if(wallet.type=='Credit'){%>
+                                <span class="text-success">+<%= wallet.amount %></span>
+                            <%}%>
+                            </td>
+                        <td><%= wallet.reason %></td>
+                        <td><a style="text-decoration: none;" href="/viewOrder/<%= wallet.orderId %>"><%= wallet.orderId %></a></td>
+                        <td><%= wallet.Date.toLocaleString('en-US', { dateStyle: 'medium' }) %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+            </div>
+        <%}%>
+    </div>
+</body>
+<script>
+     $(document).ready(function () {
+      $('.table').DataTable();
+    });
+</script>
+<%- include('../layouts/userFooter') %>
