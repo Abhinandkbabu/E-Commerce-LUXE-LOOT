@@ -24,9 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
     secret: process.env.SECRET,
-    resave: false,
+    resave: false, 
     saveUninitialized: false,
-}))
+})) 
 
 
 app.set('views',path.join(__dirname,'views')) 

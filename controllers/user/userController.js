@@ -334,7 +334,7 @@ module.exports = {
           id: user._id,
         };
         const token = jwt.sign(payload, jwtSecret, { expiresIn: "10m" });
-        const link = `http://localhost:7000/resetPassword/${email}/${token}`;
+        const link = `http://luxe-loot.shop/resetPassword/${email}/${token}`;
         const mailOption = {
           from: process.env.AdminMail,
           to: email,
